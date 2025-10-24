@@ -1,0 +1,10 @@
+{
+  "/page": "app/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/dashboard/audit/[domain]/page": "app/dashboard/audit/[domain]/page.js",
+  "/dashboard/keywords/page": "app/dashboard/keywords/page.js",
+  "/dashboard/competitors/page": "app/dashboard/competitors/page.js",
+  "/dashboard/content/[pageId]/page": "app/dashboard/content/[pageId]/page.js",
+  "/dashboard/backlinks/page": "app/dashboard/backlinks/page.js",
+  "/dashboard/technical-explorer/page": "app/dashboard/technical-explorer/page.js"
+}

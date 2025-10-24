@@ -4,7 +4,8 @@
   "version": "0.1.0",
   "workspaces": [
     "server",
-    "web"
+    "web",
+    "apps/crawlbase"
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev --workspace server\" \"npm run dev --workspace web\"",
