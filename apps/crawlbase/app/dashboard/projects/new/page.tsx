@@ -22,6 +22,13 @@ type FormState = {
   competitors: string;
 };
 
+type CreateProjectResponse = {
+  project?: {
+    projectId?: string;
+    siteUrl?: string;
+  };
+};
+
 const INITIAL_STATE: FormState = {
   name: "",
   siteUrl: "",
@@ -34,6 +41,25 @@ export default function NewProjectPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+
+  const queueInitialCrawl = async (projectId: string, siteUrl: string) => {
+    const crawlResponse = await fetch("/api/recheck", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        projectId,
+        issueId: "initial-crawl",
+        urls: [siteUrl]
+      })
+    });
+
+    if (!crawlResponse.ok) {
+      const payload = await crawlResponse.json().catch(() => ({}));
+      throw new Error(payload.error ?? "Failed to queue crawl for the project.");
+    }
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -59,11 +85,18 @@ export default function NewProjectPage() {
         throw new Error(payload.error ?? "Unable to create project.");
       }
 
-      const payload = await response.json();
+      const payload = (await response.json()) as CreateProjectResponse;
       const projectId = payload.project?.projectId;
       if (!projectId) {
         throw new Error("Project created without identifier.");
       }
+
+      const normalizedUrl = payload.project?.siteUrl ?? form.siteUrl.trim();
+      if (!normalizedUrl) {
+        throw new Error("Project created without a valid URL.");
+      }
+
+      await queueInitialCrawl(projectId, normalizedUrl);
 
       router.push(`/dashboard/projects/${projectId}`);
       router.refresh();
@@ -154,7 +187,7 @@ export default function NewProjectPage() {
             </div>
             {error ? (
               <Alert variant="destructive">
-                <AlertTitle>Unable to create project</AlertTitle>
+                <AlertTitle>Unable to run scan</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             ) : null}
@@ -162,10 +195,10 @@ export default function NewProjectPage() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Running checks...
+                  Running scan...
                 </>
               ) : (
-                "Create project"
+                "Run scan"
               )}
             </Button>
           </form>

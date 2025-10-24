@@ -1,3 +1,6 @@
+import type { IssueRecord } from "@/components/dashboard/technical-explorer/issues-table";
+import type { IssueTrendPoint } from "@/lib/analysis/analyzer-transform";
+
 "use client";
 
 import {
@@ -11,42 +14,62 @@ import { Badge } from "@/components/ui/badge";
 import { IssuesTable } from "@/components/dashboard/technical-explorer/issues-table";
 import { IssueTrendChart } from "@/components/dashboard/charts/issue-trend-chart";
 import { Separator } from "@/components/ui/separator";
-import {
-  mockAuditIssues,
-  mockAuditSummary,
-  mockIssueTrend
-} from "@/lib/mock-data";
+import { cn } from "@/lib/utils";
 
 interface SiteHealthViewProps {
   domain: string;
+  score: number | null;
+  crawlHealth: {
+    crawledPages: number | null;
+    blockedPages: number | null;
+    brokenLinks: number | null;
+  };
+  vitals: {
+    lcp: number | null;
+    cls: number | null;
+    inp: number | null;
+  };
+  issues: IssueRecord[];
+  issueTrend: IssueTrendPoint[];
+  analyzerTimestamp?: string | null;
 }
 
-export function SiteHealthView({ domain }: SiteHealthViewProps) {
+export function SiteHealthView({
+  domain,
+  score,
+  crawlHealth,
+  vitals,
+  issues,
+  issueTrend,
+  analyzerTimestamp
+}: SiteHealthViewProps) {
+  const lastRunLabel = analyzerTimestamp
+    ? new Date(analyzerTimestamp).toLocaleString()
+    : "No analyzer run yet";
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Site Health · {domain}</h1>
-          <p className="text-sm text-muted-foreground">
-            Latest crawl completed 3 hours ago
-          </p>
+          <p className="text-sm text-muted-foreground">{lastRunLabel}</p>
         </div>
-        <Badge variant="secondary">DataForSEO OnPage</Badge>
+        <Badge variant="secondary">Analyzer</Badge>
       </div>
 
       <section className="grid gap-4 md:grid-cols-4">
-        <HealthStatCard title="Overall Score" value={`${mockAuditSummary.score}`} />
+        <HealthStatCard title="Overall Score" value={formatScore(score)} />
         <HealthStatCard
           title="Crawlable Pages"
-          value={`${mockAuditSummary.crawlHealth.crawledPages}`}
+          value={formatNumber(crawlHealth.crawledPages)}
         />
         <HealthStatCard
           title="Blocked Resources"
-          value={`${mockAuditSummary.crawlHealth.blockedPages}`}
+          value={formatNumber(crawlHealth.blockedPages)}
         />
         <HealthStatCard
           title="Broken Links"
-          value={`${mockAuditSummary.crawlHealth.brokenLinks}`}
+          value={formatNumber(crawlHealth.brokenLinks)}
         />
       </section>
 
@@ -54,39 +77,31 @@ export function SiteHealthView({ domain }: SiteHealthViewProps) {
         <CardHeader>
           <CardTitle>Core Web Vitals</CardTitle>
           <CardDescription>
-            Performance based on latest Lighthouse run
+            Pulled from the latest PageSpeed Insights run.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-3">
-          <VitalItem
-            label="LCP"
-            value={`${mockAuditSummary.vitals.lcp}s`}
-            support="Target < 2.5s"
-          />
+          <VitalItem label="LCP" value={formatSeconds(vitals.lcp)} support="Target < 2.5s" />
           <Separator className="hidden md:block" orientation="vertical" />
-          <VitalItem
-            label="CLS"
-            value={mockAuditSummary.vitals.cls.toFixed(2)}
-            support="Target < 0.1"
-          />
+          <VitalItem label="CLS" value={formatDecimal(vitals.cls)} support="Target < 0.1" />
           <Separator className="hidden md:block" orientation="vertical" />
-          <VitalItem
-            label="INP"
-            value={`${mockAuditSummary.vitals.inp}ms`}
-            support="Target < 200ms"
-          />
+          <VitalItem label="INP" value={formatMilliseconds(vitals.inp)} support="Target < 200ms" />
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
           <CardTitle>Issue Distribution</CardTitle>
-          <CardDescription>
-            Severity-weighted trend of open vs resolved
-          </CardDescription>
+          <CardDescription>Live breakdown of analyzer checks.</CardDescription>
         </CardHeader>
         <CardContent>
-          <IssueTrendChart data={mockIssueTrend} />
+          {issueTrend.length > 0 ? (
+            <IssueTrendChart data={issueTrend} />
+          ) : (
+            <EmptyPlaceholder>
+              No analyzer history yet. Trigger an audit to populate this chart.
+            </EmptyPlaceholder>
+          )}
         </CardContent>
       </Card>
 
@@ -94,21 +109,21 @@ export function SiteHealthView({ domain }: SiteHealthViewProps) {
         <CardHeader>
           <CardTitle>Critical Issues</CardTitle>
           <CardDescription>
-            Prioritized list of items requiring attention
+            Failing analyzer checks grouped by severity.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <IssuesTable
-            issues={mockAuditIssues.map((issue) => ({
-              ...issue,
-              impact: issue.impact,
-              pages: issue.pages,
-              status: issue.status
-            }))}
-            onSelectIssue={(_issueId) => {
-              /* no-op for overview table */
-            }}
-          />
+          {issues.length > 0 ? (
+            <IssuesTable
+              issues={issues}
+              onSelectIssue={() => undefined}
+              selectedId={undefined}
+            />
+          ) : (
+            <EmptyPlaceholder>
+              No failing checks detected during the last analyzer run.
+            </EmptyPlaceholder>
+          )}
         </CardContent>
       </Card>
     </div>
@@ -123,7 +138,7 @@ function HealthStatCard({ title, value }: { title: string; value: string }) {
         <CardTitle className="text-3xl">{value}</CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-xs text-muted-foreground">Last updated 3h ago</p>
+        <p className="text-xs text-muted-foreground">Last updated automatically</p>
       </CardContent>
     </Card>
   );
@@ -147,4 +162,39 @@ function VitalItem({
       <p className="text-xs text-muted-foreground">{support}</p>
     </div>
   );
+}
+
+function EmptyPlaceholder({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      className={cn(
+        "rounded-lg border border-dashed bg-muted/40 p-6 text-center text-sm text-muted-foreground"
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+function formatScore(score: number | null) {
+  return typeof score === "number" ? `${score}` : "—";
+}
+
+function formatNumber(value: number | null) {
+  return typeof value === "number" ? value.toLocaleString() : "—";
+}
+
+function formatSeconds(value: number | null) {
+  if (typeof value !== "number") return "—";
+  return `${value.toFixed(1)}s`;
+}
+
+function formatMilliseconds(value: number | null) {
+  if (typeof value !== "number") return "—";
+  return `${Math.round(value)}ms`;
+}
+
+function formatDecimal(value: number | null) {
+  if (typeof value !== "number") return "—";
+  return value.toFixed(2);
 }

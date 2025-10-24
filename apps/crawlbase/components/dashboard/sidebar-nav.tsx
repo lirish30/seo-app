@@ -5,13 +5,52 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { GaugeCircle, PlusCircle } from "lucide-react";
+import {
+  Activity,
+  BookOpen,
+  GaugeCircle,
+  Link2,
+  PlusCircle,
+  Search,
+  Users,
+  Wrench
+} from "lucide-react";
 
 const navItems = [
   {
     title: "Projects",
     href: "/dashboard",
     icon: GaugeCircle
+  },
+  {
+    title: "Site Health",
+    href: "/dashboard/site-health",
+    icon: Activity
+  },
+  {
+    title: "Keywords",
+    href: "/dashboard/keywords",
+    icon: Search
+  },
+  {
+    title: "Competitors",
+    href: "/dashboard/competitors",
+    icon: Users
+  },
+  {
+    title: "Content",
+    href: "/dashboard/content",
+    icon: BookOpen
+  },
+  {
+    title: "Backlinks",
+    href: "/dashboard/backlinks",
+    icon: Link2
+  },
+  {
+    title: "Technical Explorer",
+    href: "/dashboard/technical-explorer",
+    icon: Wrench
   },
   {
     title: "Create Project",

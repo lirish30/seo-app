@@ -21,9 +21,12 @@ Full-stack SEO Analyzer SaaS built on Next.js 14, Tailwind, and shadcn/ui. Proje
    DATAFORSEO_LOGIN=your-login
    DATAFORSEO_PASSWORD=your-password
    GOOGLE_PAGESPEED_API_KEY=your-pagespeed-key
+   CRAWLBASE_SKIP_URL_VALIDATION=false
    ```
 
    > `DATAFORSEO_LOGIN`/`DATAFORSEO_PASSWORD` unlock live keyword + SERP data. When absent, the API falls back to deterministic mock values so the workflow remains usable in development. The PageSpeed API key is optional but recommended to avoid quota throttling.
+   >
+   > If you are developing behind a firewall or without outbound internet access, set `CRAWLBASE_SKIP_URL_VALIDATION=true`. The API will still validate URL structure but will no longer ping the domain before persisting a project, preventing local network errors from blocking development.
 
 3. Start the development server:
 
@@ -58,6 +61,7 @@ Supabase helpers and migrations remain in the repo for teams that want hosted pe
 ## Notes & Limitations
 
 - API calls depend on external credentials and outbound network access. Errors are surfaced inline in the UI.
+- Offline environments are tolerated: when the server cannot reach the target domain (or when `CRAWLBASE_SKIP_URL_VALIDATION=true`), the project API skips the remote validation step but still enforces basic URL formatting.
 - Supabase helpers remain available but are optional; local JSON persistence works out of the box.
 - `npm run typecheck` currently flags historical issues in Supabase/OpenAI helpers—unrelated to the new project pipeline.
 - Edge functions under `supabase/functions/` are untouched and can be wired back in when migrating from the local store.

@@ -21,6 +21,7 @@ import {
   fetchKeywordDifficulty,
   fetchSerpResults
 } from "@/lib/services/dataforseo";
+import { runSiteAnalyzer } from "@/lib/services/site-analyzer";
 
 export interface CreateProjectPayload {
   name: string;
@@ -114,6 +115,7 @@ export async function createProject(payload: CreateProjectPayload): Promise<Proj
   await validateSiteUrl(normalizedUrl);
 
   const pagespeedMetrics = await fetchPageSpeedInsightsSafe(normalizedUrl);
+  const siteAnalyzerReport = await fetchSiteAnalyzerReportSafe(normalizedUrl);
 
   const usingMockSeoData = !isDataForSeoConfigured();
   let keywordRecords: KeywordRecord[];
@@ -160,6 +162,7 @@ export async function createProject(payload: CreateProjectPayload): Promise<Proj
       fid: pagespeedMetrics.fid,
       analyzedAt: pagespeedMetrics.analyzedAt
     },
+    siteAnalyzerReport,
     createdAt: now,
     updatedAt: now
   };
@@ -180,6 +183,7 @@ export async function refreshProject(projectId: string): Promise<ProjectRecord> 
   }
 
   const pagespeedMetrics = await fetchPageSpeedInsightsSafe(project.siteUrl);
+  const siteAnalyzerReport = await fetchSiteAnalyzerReportSafe(project.siteUrl);
 
   let keywordRecords: KeywordRecord[];
   let competitorRecords: CompetitorRecord[];
@@ -211,6 +215,7 @@ export async function refreshProject(projectId: string): Promise<ProjectRecord> 
     keywords: keywordRecords,
     competitors: competitorRecords,
     metrics: pagespeedMetrics,
+    siteAnalyzerReport: siteAnalyzerReport ?? project.siteAnalyzerReport,
     updatedAt: new Date().toISOString()
   };
 
@@ -229,6 +234,11 @@ function normalizeSiteUrl(input: string): string | null {
 }
 
 async function validateSiteUrl(url: string): Promise<void> {
+  if (process.env.CRAWLBASE_SKIP_URL_VALIDATION === "true") {
+    console.warn("[projects-service] Skipping URL validation via CRAWLBASE_SKIP_URL_VALIDATION.");
+    return;
+  }
+
   try {
     const response = await fetch(url, {
       method: "GET",
@@ -241,12 +251,52 @@ async function validateSiteUrl(url: string): Promise<void> {
       throw new Error(`URL returned status ${response.status}`);
     }
   } catch (error) {
-    throw new Error(
-      `Unable to validate URL "${url}". ${
-        error instanceof Error ? error.message : "Unknown network error."
-      }`
-    );
+    if (isOfflineNetworkError(error) && isLikelyHttpUrl(url)) {
+      console.warn(
+        `[projects-service] Unable to reach ${url} due to restricted network access. Continuing without remote validation.`
+      );
+      return;
+    }
+
+    throw new Error(`Unable to validate URL "${url}". ${formatErrorMessage(error)}`);
   }
+}
+
+function isOfflineNetworkError(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const knownError = (error as NodeJS.ErrnoException) ?? {};
+  const candidates = [knownError, knownError.cause as NodeJS.ErrnoException | undefined].filter(
+    Boolean
+  ) as NodeJS.ErrnoException[];
+
+  return candidates.some((candidate) => {
+    const code = candidate.code;
+    return (
+      typeof code === "string" &&
+      ["ENOTFOUND", "EAI_AGAIN", "ECONNREFUSED", "ECONNRESET", "EHOSTUNREACH", "ETIMEDOUT"].includes(
+        code
+      )
+    );
+  });
+}
+
+function isLikelyHttpUrl(value: string): boolean {
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function formatErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return "Unknown network error.";
 }
 
 type KeywordMetric = {
@@ -371,6 +421,18 @@ async function fetchPageSpeedInsightsSafe(url: string): Promise<ProjectMetrics> 
       fid: null,
       analyzedAt: new Date().toISOString()
     };
+  }
+}
+
+async function fetchSiteAnalyzerReportSafe(url: string) {
+  try {
+    return await runSiteAnalyzer(url);
+  } catch (error) {
+    console.warn(
+      `[projects-service] Failed to fetch analyzer report for ${url}. Continuing without analyzer data.`,
+      error
+    );
+    return null;
   }
 }
 

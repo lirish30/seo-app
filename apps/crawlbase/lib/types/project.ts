@@ -1,3 +1,5 @@
+import type { SeoReport } from "@/lib/types/analyzer";
+
 export interface ProjectMetrics {
   pagespeedScore: number | null;
   seoScore: number | null;
@@ -39,6 +41,7 @@ export interface ProjectRecord {
   keywords: KeywordRecord[];
   competitors: CompetitorRecord[];
   metrics: ProjectMetrics;
+  siteAnalyzerReport: SeoReport | null;
   createdAt: string;
   updatedAt: string;
 }

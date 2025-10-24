@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { KeywordRecord, CompetitorRecord } from "@/lib/types/project";
+import { ProjectRescanButton } from "@/components/dashboard/project-rescan-button";
 
 export default async function ProjectHealthPage({
   params
@@ -50,6 +51,7 @@ export default async function ProjectHealthPage({
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <ProjectRescanButton projectId={project.projectId} />
           <Button variant="outline" asChild>
             <Link href={`/dashboard/projects/${project.projectId}/keywords`}>View keywords</Link>
           </Button>
