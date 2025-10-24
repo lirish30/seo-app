@@ -70,6 +70,33 @@ export interface Database {
           }
         ];
       };
+      project_records: {
+        Row: {
+          project_id: string;
+          name: string;
+          site_url: string;
+          record: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          project_id: string;
+          name: string;
+          site_url: string;
+          record: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          project_id?: string;
+          name?: string;
+          site_url?: string;
+          record?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       audits: {
         Row: {
           id: string;

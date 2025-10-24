@@ -10,7 +10,7 @@ import {
 } from "@/lib/mock-data";
 import { TechnicalHealthCard } from "@/components/dashboard/technical-explorer/technical-health-card";
 import { IssuesTable, type IssueRecord } from "@/components/dashboard/technical-explorer/issues-table";
-import { IssueDrawer } from "@/components/dashboard/technical-explorer/issue-drawer";
+import { IssueDrawer, type IssueDrawerData } from "@/components/dashboard/technical-explorer/issue-drawer";
 import { IssueTrendChart } from "@/components/dashboard/charts/issue-trend-chart";
 import {
   Card,
@@ -40,7 +40,7 @@ export default function TechnicalExplorerPage() {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
-  const selectedIssue = useMemo(() => {
+  const selectedIssue = useMemo<IssueDrawerData | undefined>(() => {
     if (!selectedIssueId) return undefined;
     const detail = mockIssueDetails[selectedIssueId as keyof typeof mockIssueDetails];
     if (!detail) return undefined;
@@ -52,10 +52,14 @@ export default function TechnicalExplorerPage() {
       severity: summary.severity,
       status: summary.status,
       aiSummary: detail.aiSummary,
-      recommendations: detail.recommendations,
-      affectedPages: detail.affectedPages,
-      history: detail.history
-    };
+      recommendations: [...detail.recommendations],
+      affectedPages: detail.affectedPages.map((page) => ({
+        url: page.url,
+        status: page.status === "resolved" ? "fixed" : page.status,
+        traffic_loss: page.traffic_loss ?? null
+      })),
+      history: detail.history.map((item) => ({ ...item }))
+    } satisfies IssueDrawerData;
   }, [selectedIssueId]);
 
   const handleTriggerRecheck = () =>

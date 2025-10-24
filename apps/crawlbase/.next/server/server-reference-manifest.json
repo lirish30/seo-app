@@ -1,5 +1,86 @@
 {
-  "node": {},
+  "node": {
+    "935e5a1c74416addbe8a9f2626b3e472a0cdc320": {
+      "workers": {
+        "app/dashboard/page": "(rsc)/../../node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fprojects-service.ts%22%2C%5B%22refreshProject%22%2C%22createProject%22%2C%22getKeywordSerp%22%2C%22getProject%22%2C%22listProjects%22%5D%5D%2C%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fproject-store.ts%22%2C%5B%22getProjectRecord%22%2C%22listProjectRecords%22%2C%22upsertProjectRecord%22%5D%5D%5D&__client_imported__=!",
+        "app/dashboard/projects/[projectId]/page": "(rsc)/../../node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fprojects-service.ts%22%2C%5B%22refreshProject%22%2C%22createProject%22%2C%22getKeywordSerp%22%2C%22getProject%22%2C%22listProjects%22%5D%5D%2C%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fproject-store.ts%22%2C%5B%22getProjectRecord%22%2C%22listProjectRecords%22%2C%22upsertProjectRecord%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/dashboard/page": "rsc",
+        "app/dashboard/projects/[projectId]/page": "rsc"
+      }
+    },
+    "9c587674a618dd09f81f3ae1cb283f9ddf1aa6f6": {
+      "workers": {
+        "app/dashboard/page": "(rsc)/../../node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fprojects-service.ts%22%2C%5B%22refreshProject%22%2C%22createProject%22%2C%22getKeywordSerp%22%2C%22getProject%22%2C%22listProjects%22%5D%5D%2C%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fproject-store.ts%22%2C%5B%22getProjectRecord%22%2C%22listProjectRecords%22%2C%22upsertProjectRecord%22%5D%5D%5D&__client_imported__=!",
+        "app/dashboard/projects/[projectId]/page": "(rsc)/../../node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fprojects-service.ts%22%2C%5B%22refreshProject%22%2C%22createProject%22%2C%22getKeywordSerp%22%2C%22getProject%22%2C%22listProjects%22%5D%5D%2C%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fproject-store.ts%22%2C%5B%22getProjectRecord%22%2C%22listProjectRecords%22%2C%22upsertProjectRecord%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/dashboard/page": "rsc",
+        "app/dashboard/projects/[projectId]/page": "rsc"
+      }
+    },
+    "a22e3f2f4d23cbfc164c7b3f01940c26e0dc26bd": {
+      "workers": {
+        "app/dashboard/page": "(rsc)/../../node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fprojects-service.ts%22%2C%5B%22refreshProject%22%2C%22createProject%22%2C%22getKeywordSerp%22%2C%22getProject%22%2C%22listProjects%22%5D%5D%2C%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fproject-store.ts%22%2C%5B%22getProjectRecord%22%2C%22listProjectRecords%22%2C%22upsertProjectRecord%22%5D%5D%5D&__client_imported__=!",
+        "app/dashboard/projects/[projectId]/page": "(rsc)/../../node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fprojects-service.ts%22%2C%5B%22refreshProject%22%2C%22createProject%22%2C%22getKeywordSerp%22%2C%22getProject%22%2C%22listProjects%22%5D%5D%2C%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fproject-store.ts%22%2C%5B%22getProjectRecord%22%2C%22listProjectRecords%22%2C%22upsertProjectRecord%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/dashboard/page": "rsc",
+        "app/dashboard/projects/[projectId]/page": "rsc"
+      }
+    },
+    "c5404dbf0c4be0ee5dd5e9c8877b7410f1a7e7a4": {
+      "workers": {
+        "app/dashboard/page": "(rsc)/../../node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fprojects-service.ts%22%2C%5B%22refreshProject%22%2C%22createProject%22%2C%22getKeywordSerp%22%2C%22getProject%22%2C%22listProjects%22%5D%5D%2C%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fproject-store.ts%22%2C%5B%22getProjectRecord%22%2C%22listProjectRecords%22%2C%22upsertProjectRecord%22%5D%5D%5D&__client_imported__=!",
+        "app/dashboard/projects/[projectId]/page": "(rsc)/../../node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fprojects-service.ts%22%2C%5B%22refreshProject%22%2C%22createProject%22%2C%22getKeywordSerp%22%2C%22getProject%22%2C%22listProjects%22%5D%5D%2C%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fproject-store.ts%22%2C%5B%22getProjectRecord%22%2C%22listProjectRecords%22%2C%22upsertProjectRecord%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/dashboard/page": "rsc",
+        "app/dashboard/projects/[projectId]/page": "rsc"
+      }
+    },
+    "f748b4717d59e36c946b43f7c99d7ddc719605b5": {
+      "workers": {
+        "app/dashboard/page": "(rsc)/../../node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fprojects-service.ts%22%2C%5B%22refreshProject%22%2C%22createProject%22%2C%22getKeywordSerp%22%2C%22getProject%22%2C%22listProjects%22%5D%5D%2C%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fproject-store.ts%22%2C%5B%22getProjectRecord%22%2C%22listProjectRecords%22%2C%22upsertProjectRecord%22%5D%5D%5D&__client_imported__=!",
+        "app/dashboard/projects/[projectId]/page": "(rsc)/../../node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fprojects-service.ts%22%2C%5B%22refreshProject%22%2C%22createProject%22%2C%22getKeywordSerp%22%2C%22getProject%22%2C%22listProjects%22%5D%5D%2C%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fproject-store.ts%22%2C%5B%22getProjectRecord%22%2C%22listProjectRecords%22%2C%22upsertProjectRecord%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/dashboard/page": "rsc",
+        "app/dashboard/projects/[projectId]/page": "rsc"
+      }
+    },
+    "6167310e10173297037cc992fb7bc7abdf865e64": {
+      "workers": {
+        "app/dashboard/page": "(rsc)/../../node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fprojects-service.ts%22%2C%5B%22refreshProject%22%2C%22createProject%22%2C%22getKeywordSerp%22%2C%22getProject%22%2C%22listProjects%22%5D%5D%2C%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fproject-store.ts%22%2C%5B%22getProjectRecord%22%2C%22listProjectRecords%22%2C%22upsertProjectRecord%22%5D%5D%5D&__client_imported__=!",
+        "app/dashboard/projects/[projectId]/page": "(rsc)/../../node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fprojects-service.ts%22%2C%5B%22refreshProject%22%2C%22createProject%22%2C%22getKeywordSerp%22%2C%22getProject%22%2C%22listProjects%22%5D%5D%2C%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fproject-store.ts%22%2C%5B%22getProjectRecord%22%2C%22listProjectRecords%22%2C%22upsertProjectRecord%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/dashboard/page": "rsc",
+        "app/dashboard/projects/[projectId]/page": "rsc"
+      }
+    },
+    "bfac1f7df01485dad72a9a14401ff663e54aef16": {
+      "workers": {
+        "app/dashboard/page": "(rsc)/../../node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fprojects-service.ts%22%2C%5B%22refreshProject%22%2C%22createProject%22%2C%22getKeywordSerp%22%2C%22getProject%22%2C%22listProjects%22%5D%5D%2C%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fproject-store.ts%22%2C%5B%22getProjectRecord%22%2C%22listProjectRecords%22%2C%22upsertProjectRecord%22%5D%5D%5D&__client_imported__=!",
+        "app/dashboard/projects/[projectId]/page": "(rsc)/../../node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fprojects-service.ts%22%2C%5B%22refreshProject%22%2C%22createProject%22%2C%22getKeywordSerp%22%2C%22getProject%22%2C%22listProjects%22%5D%5D%2C%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fproject-store.ts%22%2C%5B%22getProjectRecord%22%2C%22listProjectRecords%22%2C%22upsertProjectRecord%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/dashboard/page": "rsc",
+        "app/dashboard/projects/[projectId]/page": "rsc"
+      }
+    },
+    "e0c1a882c3e6c61aed4e5fabc6acf03896c5f902": {
+      "workers": {
+        "app/dashboard/page": "(rsc)/../../node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fprojects-service.ts%22%2C%5B%22refreshProject%22%2C%22createProject%22%2C%22getKeywordSerp%22%2C%22getProject%22%2C%22listProjects%22%5D%5D%2C%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fproject-store.ts%22%2C%5B%22getProjectRecord%22%2C%22listProjectRecords%22%2C%22upsertProjectRecord%22%5D%5D%5D&__client_imported__=!",
+        "app/dashboard/projects/[projectId]/page": "(rsc)/../../node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fprojects-service.ts%22%2C%5B%22refreshProject%22%2C%22createProject%22%2C%22getKeywordSerp%22%2C%22getProject%22%2C%22listProjects%22%5D%5D%2C%5B%22%2FUsers%2Floganirish%2FDocuments%2FCode%2Fseo-app%2Fseo-app%2Fapps%2Fcrawlbase%2Flib%2Fserver%2Fproject-store.ts%22%2C%5B%22getProjectRecord%22%2C%22listProjectRecords%22%2C%22upsertProjectRecord%22%5D%5D%5D&__client_imported__=!"
+      },
+      "layer": {
+        "app/dashboard/page": "rsc",
+        "app/dashboard/projects/[projectId]/page": "rsc"
+      }
+    }
+  },
   "edge": {},
-  "encryptionKey": "MDVRw9XhbOFrkgSTSnN7k0t4XKgRFKGh3MSaQaTZWBQ="
+  "encryptionKey": "xP9IEn37GhavyONKyua+qIeKclA5Jl41LSZcL8pWK9I="
 }

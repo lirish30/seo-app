@@ -1,3 +1,7 @@
+import Link from "next/link";
+import { formatDistanceToNow } from "date-fns";
+import { listProjects } from "@/lib/server/projects-service";
+import type { ProjectSummary } from "@/lib/types/project";
 import {
   Card,
   CardContent,
@@ -6,135 +10,99 @@ import {
   CardTitle
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  mockAuditSummary,
-  mockKeywordHistory,
-  mockCompetitorOverview,
-  mockBacklinkTrend
-} from "@/lib/mock-data";
-import { KeywordPositionChart } from "@/components/dashboard/charts/keyword-position-chart";
-import { BacklinkTrendChart } from "@/components/dashboard/charts/backlink-trend-chart";
-import { DonutChart } from "@/components/dashboard/charts/donut-chart";
-import { ArrowUpRight, TrendingUp } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
-export default function DashboardOverviewPage() {
+export default async function DashboardOverviewPage() {
+  const projects = await listProjects();
+
   return (
-    <div className="space-y-6">
-      <section className="grid gap-4 md:grid-cols-4">
-        <MetricCard
-          title="Health Score"
-          value={`${mockAuditSummary.score}`}
-          change="+4 vs last audit"
-        />
-        <MetricCard
-          title="Open Issues"
-          value={`${mockAuditSummary.issuesOpen}`}
-          change="+5 this week"
-        />
-        <MetricCard
-          title="Keywords Tracked"
-          value="42"
-          change="+6 this month"
-        />
-        <MetricCard
-          title="Referring Domains"
-          value="612"
-          change="+12 last 30d"
-        />
-      </section>
+    <div className="space-y-8">
+      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-semibold">Projects</h1>
+          <p className="text-sm text-muted-foreground">
+            Manage SEO diagnostics for every property in one workspace.
+          </p>
+        </div>
+        <Button asChild>
+          <Link href="/dashboard/projects/new">Create Project</Link>
+        </Button>
+      </header>
 
-      <section className="grid gap-4 lg:grid-cols-7">
-        <Card className="lg:col-span-4">
-          <CardHeader>
-            <CardTitle>Keyword Performance</CardTitle>
-            <CardDescription>Week-over-week rank movement</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <KeywordPositionChart data={mockKeywordHistory[0].trend} />
-            <Button variant="ghost" className="gap-2" size="sm">
-              View keyword details <ArrowUpRight className="h-4 w-4" />
-            </Button>
-          </CardContent>
-        </Card>
-        <Card className="lg:col-span-3">
-          <CardHeader>
-            <CardTitle>Top Competitors</CardTitle>
-            <CardDescription>Traffic and keyword overlap</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4 text-sm">
-            <ul className="space-y-3">
-              {mockCompetitorOverview.map((competitor) => (
-                <li
-                  key={competitor.domain}
-                  className="flex items-center justify-between rounded-lg border bg-muted/50 p-3"
-                >
-                  <div>
-                    <p className="font-medium">{competitor.domain}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {competitor.overlap}% keyword overlap · Authority{" "}
-                      {competitor.authority}
-                    </p>
-                  </div>
-                  <Button size="sm" variant="outline">
-                    Benchmark
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-7">
-        <Card className="lg:col-span-3">
-          <CardHeader>
-            <CardTitle>Backlink Distribution</CardTitle>
-            <CardDescription>Quality by toxicity score</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <DonutChart
-              data={[
-                { name: "Authoritative", value: 45 },
-                { name: "Neutral", value: 35 },
-                { name: "Toxic", value: 20 }
-              ]}
-            />
-          </CardContent>
-        </Card>
-        <Card className="lg:col-span-4">
-          <CardHeader>
-            <CardTitle>Backlink Growth</CardTitle>
-            <CardDescription>Rolling 60 day trend</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <BacklinkTrendChart data={mockBacklinkTrend} />
-          </CardContent>
-        </Card>
-      </section>
+      {projects.length === 0 ? (
+        <EmptyState />
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {projects.map((project: ProjectSummary) => (
+            <Card key={project.projectId} className="flex flex-col">
+              <CardHeader className="space-y-1">
+                <CardTitle className="flex items-center justify-between text-lg">
+                  <Link href={`/dashboard/projects/${project.projectId}`} className="hover:underline">
+                    {project.name}
+                  </Link>
+                  <Badge variant="outline">Live</Badge>
+                </CardTitle>
+                <CardDescription className="truncate">{project.siteUrl}</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-1 flex-col justify-between space-y-4">
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <Metric label="PageSpeed" value={scoreDisplay(project.pagespeedScore)} />
+                  <Metric
+                    label="Avg Rank"
+                    value={project.averageRank ? `#${project.averageRank}` : "—"}
+                  />
+                  <Metric label="Top Keyword" value={project.topKeyword ?? "—"} />
+                  <Metric label="Competitors" value={String(project.competitorCount)} />
+                </div>
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>
+                    Created{" "}
+                    {formatDistanceToNow(new Date(project.createdAt), {
+                      addSuffix: true
+                    })}
+                  </span>
+                  <Link
+                    href={`/dashboard/projects/${project.projectId}`}
+                    className="font-medium text-primary hover:underline"
+                  >
+                    View site health
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-function MetricCard({
-  title,
-  value,
-  change
-}: {
-  title: string;
-  value: string;
-  change: string;
-}) {
+function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardDescription>{title}</CardDescription>
-        <CardTitle className="text-3xl">{value}</CardTitle>
+    <div>
+      <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="mt-1 font-medium">{value}</p>
+    </div>
+  );
+}
+
+function scoreDisplay(score: number | null): string {
+  return typeof score === "number" ? `${score}/100` : "—";
+}
+
+function EmptyState() {
+  return (
+    <Card className="border-dashed bg-muted/40">
+      <CardHeader>
+        <CardTitle>No projects yet</CardTitle>
+        <CardDescription>
+          Create a project to run PageSpeed Insights and DataForSEO lookups in one workflow.
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="flex items-center gap-2 text-xs text-emerald-500">
-          <TrendingUp className="h-4 w-4" />
-          {change}
-        </p>
+        <Button asChild>
+          <Link href="/dashboard/projects/new">Create your first project</Link>
+        </Button>
       </CardContent>
     </Card>
   );

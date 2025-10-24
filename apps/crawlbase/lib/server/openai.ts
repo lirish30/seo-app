@@ -27,7 +27,6 @@ export async function generateIssueSummary({
   const response = await openai.responses.create({
     model: "gpt-4o-mini",
     temperature: 0.3,
-    response_format: { type: "json_object" },
     input: [
       {
         role: "system",
@@ -41,20 +40,25 @@ export async function generateIssueSummary({
     ]
   });
 
-  const output = response.output[0];
-  if (output?.type === "error") {
-    throw new Error(output.error?.message ?? "Unknown OpenAI error");
+  if (response.error) {
+    throw new Error(response.error.message ?? "Unknown OpenAI error");
   }
 
-  const jsonContent =
-    output && "content" in output && output.content[0]?.text?.value;
+  const jsonContent = response.output_text?.trim();
 
   if (!jsonContent) {
     throw new Error("OpenAI response missing content");
   }
 
-  return JSON.parse(jsonContent) as {
+  const parsed = JSON.parse(jsonContent) as {
     summary: string;
     recommendations: string[];
+  };
+
+  return {
+    summary: parsed.summary,
+    recommendations: Array.isArray(parsed.recommendations)
+      ? parsed.recommendations.map((item) => String(item))
+      : []
   };
 }

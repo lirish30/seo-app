@@ -1,6 +1,6 @@
 # Crawlbase
 
-Modular SEO intelligence platform scaffold built with Next.js 14 App Router, Tailwind, ShadCN UI components, Supabase, DataForSEO, and OpenAI integrations. The project ships with mock data to explore the dashboard experience while backend integrations are wired through Supabase Edge Functions.
+Full-stack SEO Analyzer SaaS built on Next.js 14, Tailwind, and shadcn/ui. Projects are created on demand: every submission validates the target URL, calls Google PageSpeed Insights for Core Web Vitals, and (when credentials are available) hits DataForSEO keyword + SERP endpoints to collect rankings, volume, CPC, difficulty, and competitive overlap. Results are written to a lightweight JSON datastore at `apps/crawlbase/data/projects.json`, keeping the experience cohesive without a background scheduler.
 
 ## Getting Started
 
@@ -11,37 +11,53 @@ Modular SEO intelligence platform scaffold built with Next.js 14 App Router, Tai
    npm install --workspace apps/crawlbase
    ```
 
-2. Create an `.env` file in `apps/crawlbase` based on `.env.example` and supply the API keys for Supabase, OpenAI, and DataForSEO.
+2. Create `apps/crawlbase/.env.local` with the required credentials:
 
-3. Run the development server:
+   ```bash
+   # Optional – only needed if you re-enable Supabase persistence
+   NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=public-anon-key
+   SUPABASE_SERVICE_ROLE_KEY=service-role-key
+   DATAFORSEO_LOGIN=your-login
+   DATAFORSEO_PASSWORD=your-password
+   GOOGLE_PAGESPEED_API_KEY=your-pagespeed-key
+   ```
+
+   > `DATAFORSEO_LOGIN`/`DATAFORSEO_PASSWORD` unlock live keyword + SERP data. When absent, the API falls back to deterministic mock values so the workflow remains usable in development. The PageSpeed API key is optional but recommended to avoid quota throttling.
+
+3. Start the development server:
 
    ```bash
    npm run dev --workspace apps/crawlbase
    ```
 
-4. Open [http://localhost:3000](http://localhost:3000) to load the dashboard shell with mock data.
+4. Visit [http://localhost:3000](http://localhost:3000) to open the marketing splash and jump into the dashboard.
 
-## Directory Overview
+## Core Workflow
 
-- `app/` – App Router routes covering dashboard modules, API routes, and shared layouts.
-- `components/` – ShadCN-derived UI components and dashboard-specific composables.
-- `lib/` – Supabase clients, parsing utilities, OpenAI helpers, and mock data.
-- `supabase/` – SQL migrations and Edge Functions (`recheck`, `ai-summary`).
+1. **Create a project** — enter the site URL, keywords (one per line), and optional competitor URLs. The UI calls `POST /api/projects`.
+2. **Backend aggregation** — the API validates the URL, runs PageSpeed Insights, calls DataForSEO Keyword Data + SERP endpoints, merges the payloads, and persists the normalized record.
+3. **Dashboard overview** — `/dashboard` lists projects with score summaries, average rank, and competitor counts.
+4. **Site health** — `/dashboard/projects/[id]` shows PageSpeed metrics, keyword highlights, and detected competitors. A “Sync data” button reruns the APIs instantly.
+5. **Keyword explorer** — `/dashboard/projects/[id]/keywords` fetches stored keyword metrics and can request fresh SERP snapshots per keyword.
+6. **Competitor comparison** — `/dashboard/projects/[id]/competitors` surfaces how often each domain appears across tracked SERPs.
 
-## Supabase
+All endpoints run on demand—there is no scheduler or queue. Refreshes simply call back into the external APIs using the stored project definition.
 
-- Apply the migration in `supabase/migrations/202406010001_initial_schema.sql` to provision all tables.
-- Deploy the Edge Functions after configuring `DATAFORSEO_*` and `OPENAI_API_KEY`.
-- The Next.js API routes call Supabase Functions to queue re-audits and AI summaries.
+## Directory Guide
 
-## DataForSEO & OpenAI
+- `app/` – App Router routes for marketing, dashboard, and API handlers.
+- `components/` – shadcn/ui primitives plus project-specific tables, forms, and nav.
+- `lib/services/` – Google PageSpeed and DataForSEO client wrappers.
+- `lib/server/` – Project orchestration layer and file-backed persistence helpers.
+- `lib/types/` – Shared TypeScript interfaces for project records.
+- `data/` – JSON datastore generated automatically when the first project is saved (git-ignored by default).
 
-- `lib/dataforseo.ts` and `lib/parseOnPage.ts` convert OnPage API output into issue records.
-- Edge functions handle re-crawls and AI summary generation using service credentials.
+Supabase helpers and migrations remain in the repo for teams that want hosted persistence, but the default configuration relies on the local JSON store for quick iteration.
 
-## Next Steps
+## Notes & Limitations
 
-- Replace mock data fetches with Supabase queries using RLS policies per plan tier.
-- Implement authentication flows with Supabase Auth helpers in the layout.
-- Wire keyword, competitor, and backlink modules to live DataForSEO endpoints.
-- Add Stripe billing workflow per monetization model once core experience is validated.
+- API calls depend on external credentials and outbound network access. Errors are surfaced inline in the UI.
+- Supabase helpers remain available but are optional; local JSON persistence works out of the box.
+- `npm run typecheck` currently flags historical issues in Supabase/OpenAI helpers—unrelated to the new project pipeline.
+- Edge functions under `supabase/functions/` are untouched and can be wired back in when migrating from the local store.

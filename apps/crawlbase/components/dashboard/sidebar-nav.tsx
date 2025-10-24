@@ -5,53 +5,18 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  BarChart3,
-  Bug,
-  Compass,
-  FileText,
-  GaugeCircle,
-  Layers3,
-  LineChart,
-  LinkIcon,
-  Settings
-} from "lucide-react";
+import { GaugeCircle, PlusCircle } from "lucide-react";
 
 const navItems = [
   {
-    title: "Overview",
+    title: "Projects",
     href: "/dashboard",
     icon: GaugeCircle
   },
   {
-    title: "Site Health",
-    href: "/dashboard/audit/demo.com",
-    icon: Bug
-  },
-  {
-    title: "Keywords",
-    href: "/dashboard/keywords",
-    icon: LineChart
-  },
-  {
-    title: "Competitors",
-    href: "/dashboard/competitors",
-    icon: Compass
-  },
-  {
-    title: "Content",
-    href: "/dashboard/content/sample-page",
-    icon: FileText
-  },
-  {
-    title: "Backlinks",
-    href: "/dashboard/backlinks",
-    icon: LinkIcon
-  },
-  {
-    title: "Technical Explorer",
-    href: "/dashboard/technical-explorer",
-    icon: Layers3
+    title: "Create Project",
+    href: "/dashboard/projects/new",
+    icon: PlusCircle
   }
 ];
 
@@ -69,7 +34,12 @@ export function DashboardNav() {
       <nav className="flex-1 space-y-2">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href;
+          const isActive =
+            pathname === item.href ||
+            (item.href !== "/dashboard" && pathname.startsWith(item.href)) ||
+            (item.href === "/dashboard" &&
+              (pathname === "/dashboard" ||
+                /^\/dashboard\/projects\/[A-Za-z0-9-]+/.test(pathname)));
           return (
             <Button
               key={item.href}
