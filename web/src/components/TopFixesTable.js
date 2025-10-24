@@ -1,13 +1,13 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { Badge, Card, Table, Tbody, Td, Th, Thead, Tr, Text } from "@kibo-ui/react";
-const IMPACT_COLOR = {
-    high: "error",
+import { Badge, Card, CardBody, CardHeader, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@components/ui";
+const IMPACT_TONE = {
+    high: "destructive",
     medium: "warning",
     low: "success",
 };
 export function TopFixesTable({ fixes }) {
     if (!fixes.length) {
-        return (_jsx(Card, { children: _jsx(Card.Body, { children: _jsx(Text, { variant: "body1", children: "No action items detected \uD83C\uDF89" }) }) }));
+        return (_jsx(Card, { children: _jsx(CardBody, { children: _jsx("p", { className: "muted-text", children: "No action items detected. Keep shipping." }) }) }));
     }
-    return (_jsxs(Card, { children: [_jsx(Card.Header, { children: _jsx(Text, { variant: "h3", children: "Top 5 Fixes" }) }), _jsx(Card.Body, { children: _jsxs(Table, { children: [_jsx(Thead, { children: _jsxs(Tr, { children: [_jsx(Th, { children: "Priority" }), _jsx(Th, { children: "What to fix" }), _jsx(Th, { children: "Why it matters" }), _jsx(Th, { children: "How to fix" })] }) }), _jsx(Tbody, { children: fixes.map((fix) => (_jsxs(Tr, { children: [_jsx(Td, { children: _jsx(Badge, { color: IMPACT_COLOR[fix.impact], children: fix.impact }) }), _jsx(Td, { children: _jsx(Text, { variant: "subtitle1", children: fix.title }) }), _jsx(Td, { children: _jsx(Text, { variant: "body2", children: fix.why }) }), _jsx(Td, { children: _jsx(Text, { variant: "body2", children: fix.howToFix }) })] }, fix.title))) })] }) })] }));
+    return (_jsxs(Card, { className: "table-card", children: [_jsx(CardHeader, { children: _jsx("h2", { className: "section-title", children: "Top 5 fixes" }) }), _jsx(CardBody, { children: _jsxs(Table, { children: [_jsx(TableHeader, { children: _jsxs(TableRow, { className: "[&_th]:text-xs [&_th]:font-semibold [&_th]:tracking-[0.1em]", children: [_jsx(TableHead, { children: "Priority" }), _jsx(TableHead, { children: "What to fix" }), _jsx(TableHead, { children: "Why it matters" }), _jsx(TableHead, { children: "How to fix" })] }) }), _jsx(TableBody, { children: fixes.map((fix) => (_jsxs(TableRow, { className: "align-top", children: [_jsx(TableCell, { className: "font-medium capitalize", children: _jsx(Badge, { variant: IMPACT_TONE[fix.impact], children: fix.impact }) }), _jsx(TableCell, { className: "font-semibold text-foreground", children: fix.title }), _jsx(TableCell, { children: _jsx("p", { className: "muted-text", children: fix.why }) }), _jsx(TableCell, { children: _jsx("p", { className: "muted-text", children: fix.howToFix }) })] }, fix.title))) })] }) })] }));
 }

@@ -1,7 +1,8 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useMemo, useState } from "react";
 import jsPDF from "jspdf";
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Badge, Box, Button, ButtonGroup, Card, Flex, Input, Spinner, Stack, Tabs, Tab, TabList, TabPanel, TabPanels, Text, useColorMode, } from "@kibo-ui/react";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, CardHeader, Flex, Input, Spinner, Stack, Tabs, TabsContent, TabsList, TabsTrigger, } from "@components/ui";
 import { ScoreCard } from "@components/ScoreCard";
 import { TopFixesTable } from "@components/TopFixesTable";
 import { ChecksList } from "@components/ChecksList";
@@ -14,6 +15,18 @@ const CATEGORY_LABELS = {
     navigability: "Navigability",
     social: "Social",
 };
+const TAB_DEFINITIONS = [
+    {
+        value: "overview",
+        label: "Overview",
+        categories: ["Technical", "Content", "Performance", "Mobile", "Navigability", "Social"],
+    },
+    { value: "technical", label: "Technical", categories: ["Technical"] },
+    { value: "content", label: "Content", categories: ["Content"] },
+    { value: "performance", label: "Performance", categories: ["Performance"] },
+    { value: "mobile", label: "Mobile", categories: ["Mobile"] },
+    { value: "social", label: "Social", categories: ["Social"] },
+];
 function normalizeUrl(rawValue) {
     const trimmed = rawValue.trim();
     if (!trimmed) {
@@ -27,7 +40,6 @@ function normalizeUrl(rawValue) {
 function App() {
     const { report, loading, error, analyze, setError } = useSeoAnalyzer();
     const [url, setUrl] = useState("");
-    const { colorMode, toggleColorMode } = useColorMode();
     const hasReport = Boolean(report);
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -45,7 +57,7 @@ function App() {
             await analyze(normalizedUrl);
         }
         catch {
-            // errors handled by hook
+            // hook already exposes the error
         }
     };
     const handleDownloadJson = () => {
@@ -73,7 +85,10 @@ function App() {
         doc.text("Scores:", 14, 48);
         const categories = Object.entries(report.scores)
             .filter(([key]) => key !== "overall")
-            .map(([key, value]) => [CATEGORY_LABELS[key], value]);
+            .map(([key, value]) => [
+            CATEGORY_LABELS[key],
+            value,
+        ]);
         categories.forEach(([label, value], index) => {
             doc.text(`${label}: ${Math.round(value)} / 100`, 20, 58 + index * 6);
         });
@@ -106,9 +121,16 @@ function App() {
             value: report.scores[key],
         }));
     }, [report]);
-    return (_jsx(Box, { padding: "48px 24px", minHeight: "100vh", children: _jsxs(Stack, { gap: "8", maxW: "1200px", margin: "0 auto", children: [_jsxs(Card, { children: [_jsx(Card.Header, { children: _jsxs(Flex, { align: "center", justify: "space-between", wrap: "wrap", gap: "4", children: [_jsxs(Stack, { gap: "2", children: [_jsx(Text, { variant: "h2", children: "SEO Analyzer" }), _jsx(Text, { variant: "body1", color: "text.secondary", children: "Enter a page URL to get actionable SEO insights powered by DataForSEO." })] }), _jsx(Button, { type: "button", variant: "outline", color: "default", onClick: toggleColorMode, children: colorMode === "dark" ? "Switch to light mode" : "Switch to dark mode" })] }) }), _jsx(Card.Body, { children: _jsx("form", { onSubmit: handleSubmit, children: _jsxs(Stack, { gap: "4", children: [_jsx(Input, { placeholder: "https://example.com", value: url, onChange: (event) => setUrl(event.target.value), onBlur: () => setUrl((current) => normalizeUrl(current)), size: "lg" }), _jsxs(Flex, { justify: "space-between", align: "center", wrap: "wrap", gap: "4", children: [_jsx(Button, { type: "submit", color: "primary", disabled: loading, children: "Analyze" }), hasReport ? (_jsxs(ButtonGroup, { variant: "outline", children: [_jsx(Button, { onClick: handleDownloadJson, children: "Download JSON" }), _jsx(Button, { onClick: handleExportPdf, children: "Export PDF" })] })) : null] })] }) }) })] }), error ? (_jsxs(Alert, { status: "error", children: [_jsx(AlertIcon, {}), _jsxs(Stack, { children: [_jsx(AlertTitle, { children: "Analysis failed" }), _jsx(AlertDescription, { children: error })] })] })) : null, loading ? (_jsx(Card, { children: _jsx(Card.Body, { children: _jsxs(Flex, { direction: "column", align: "center", gap: "4", children: [_jsx(Spinner, { size: "lg" }), _jsx(Text, { variant: "body1", color: "text.secondary", children: "Fetching DataForSEO insights\u2026" })] }) }) })) : null, report ? (_jsxs(Stack, { gap: "8", children: [_jsxs(Card, { children: [_jsx(Card.Header, { children: _jsxs(Flex, { justify: "space-between", align: "center", wrap: "wrap", gap: "4", children: [_jsxs(Stack, { gap: "1", children: [_jsx(Text, { variant: "h3", children: "Overall Score" }), _jsxs(Text, { variant: "body2", color: "text.secondary", children: [new URL(report.url).hostname, " \u2022", " ", new Date(report.analyzedAt).toLocaleString()] })] }), _jsx(Badge, { color: report.scores.overall >= 80 ? "success" : report.scores.overall >= 60 ? "warning" : "error", children: report.scores.overall })] }) }), _jsx(Card.Body, { children: _jsx(Flex, { wrap: "wrap", gap: "4", children: scoreEntries.map((entry) => (_jsx(Box, { style: { flex: "1 1 280px" }, children: _jsx(ScoreCard, { title: entry.label, score: entry.value, description: `${entry.label} health score` }) }, entry.key))) }) })] }), _jsx(TopFixesTable, { fixes: report.topFixes }), _jsxs(Card, { children: [_jsx(Card.Header, { children: _jsx(Text, { variant: "h3", children: "Detailed Insights" }) }), _jsx(Card.Body, { children: _jsxs(Tabs, { colorScheme: "primary", children: [_jsxs(TabList, { children: [_jsx(Tab, { children: "Overview" }), _jsx(Tab, { children: "Technical" }), _jsx(Tab, { children: "Content" }), _jsx(Tab, { children: "Performance" }), _jsx(Tab, { children: "Mobile" }), _jsx(Tab, { children: "Social" })] }), _jsxs(TabPanels, { children: [_jsx(TabPanel, { children: _jsx(ChecksList, { checks: filterChecks(report, ["Technical", "Content", "Performance", "Mobile", "Navigability", "Social"]) }) }), _jsx(TabPanel, { children: _jsx(ChecksList, { checks: filterChecks(report, ["Technical"]) }) }), _jsx(TabPanel, { children: _jsx(ChecksList, { checks: filterChecks(report, ["Content"]) }) }), _jsx(TabPanel, { children: _jsx(ChecksList, { checks: filterChecks(report, ["Performance"]) }) }), _jsx(TabPanel, { children: _jsx(ChecksList, { checks: filterChecks(report, ["Mobile"]) }) }), _jsx(TabPanel, { children: _jsx(ChecksList, { checks: filterChecks(report, ["Social"]) }) })] })] }) })] })] })) : null] }) }));
+    return (_jsx("div", { className: "app-shell", children: _jsxs("div", { className: "app-container", children: [_jsxs(Card, { children: [_jsx(CardHeader, { children: _jsxs(Stack, { gap: "0.5rem", children: [_jsx("p", { className: "eyebrow", children: "DataForSEO powered" }), _jsx("h1", { className: "headline", children: "SEO Analyzer" }), _jsx("p", { className: "subheadline", children: "Enter a page URL to surface black-box SEO insights with sleek reporting outputs." })] }) }), _jsx(CardBody, { children: _jsxs("form", { onSubmit: handleSubmit, className: "flex flex-col gap-5", children: [_jsx(Input, { placeholder: "https://example.com", value: url, onChange: (event) => setUrl(event.target.value), onBlur: () => setUrl((current) => normalizeUrl(current)) }), _jsxs(Flex, { justify: "space-between", align: "center", wrap: true, gap: "1rem", children: [_jsx(Button, { type: "submit", disabled: loading, children: "Analyze" }), hasReport ? (_jsxs("div", { className: "button-group", children: [_jsx(Button, { type: "button", variant: "ghost", onClick: handleDownloadJson, children: "Download JSON" }), _jsx(Button, { type: "button", variant: "ghost", onClick: handleExportPdf, children: "Export PDF" })] })) : null] })] }) })] }), error ? (_jsxs(Alert, { variant: "destructive", children: [_jsx(AlertCircle, { className: "h-4 w-4", "aria-hidden": "true" }), _jsxs("div", { className: "grid gap-1", children: [_jsx(AlertTitle, { children: "Analysis failed" }), _jsx(AlertDescription, { children: error })] })] })) : null, loading ? (_jsx(Card, { children: _jsx(CardBody, { children: _jsxs(Stack, { gap: "1rem", className: "items-center text-center", children: [_jsx(Spinner, { size: "lg" }), _jsx("p", { className: "muted-text", children: "Fetching DataForSEO insights\u2026" })] }) }) })) : null, report ? (_jsxs(Stack, { gap: "2.5rem", children: [_jsxs(Card, { children: [_jsxs(CardHeader, { children: [_jsxs(Stack, { gap: "0.5rem", children: [_jsx("p", { className: "eyebrow", children: new URL(report.url).hostname }), _jsx("h2", { className: "section-title", children: "Overall signal" }), _jsx("p", { className: "muted-text", children: new Date(report.analyzedAt).toLocaleString() })] }), _jsx(Badge, { variant: badgeTone(report.scores.overall), className: "overall-score", children: report.scores.overall })] }), _jsx(CardBody, { children: _jsx("div", { className: "score-grid", children: scoreEntries.map((entry) => (_jsx(ScoreCard, { title: entry.label, score: entry.value, description: `${entry.label} health score` }, entry.key))) }) })] }), _jsx(TopFixesTable, { fixes: report.topFixes }), _jsxs(Card, { children: [_jsx(CardHeader, { children: _jsx("h2", { className: "section-title", children: "Detailed insights" }) }), _jsx(CardBody, { children: _jsxs(Tabs, { defaultValue: "overview", className: "w-full", children: [_jsx(TabsList, { className: "flex w-full flex-wrap gap-2 rounded-xl bg-muted/40 p-1", children: TAB_DEFINITIONS.map((tab) => (_jsx(TabsTrigger, { value: tab.value, className: "flex-1 rounded-md px-4 py-2 text-sm font-medium capitalize transition-all data-[state=active]:bg-background data-[state=active]:text-foreground sm:flex-none", children: tab.label }, tab.value))) }), TAB_DEFINITIONS.map((tab) => (_jsx(TabsContent, { value: tab.value, className: "mt-4", children: _jsx(ChecksList, { checks: filterChecks(report, tab.categories) }) }, tab.value)))] }) })] })] })) : null] }) }));
 }
 function filterChecks(report, categories) {
     return report.checks.filter((check) => categories.includes(check.category));
+}
+function badgeTone(score) {
+    if (score >= 80)
+        return "success";
+    if (score >= 60)
+        return "warning";
+    return "destructive";
 }
 export default App;

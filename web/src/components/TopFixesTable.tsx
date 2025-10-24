@@ -1,4 +1,15 @@
-import { Badge, Card, CardBody, CardHeader } from "@components/ui";
+import {
+  Badge,
+  Card,
+  CardBody,
+  CardHeader,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@components/ui";
 import { TopFix } from "../types";
 
 interface TopFixesTableProps {
@@ -28,34 +39,32 @@ export function TopFixesTable({ fixes }: TopFixesTableProps) {
         <h2 className="section-title">Top 5 fixes</h2>
       </CardHeader>
       <CardBody>
-        <table>
-          <thead>
-            <tr>
-              <th>Priority</th>
-              <th>What to fix</th>
-              <th>Why it matters</th>
-              <th>How to fix</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table>
+          <TableHeader>
+            <TableRow className="[&_th]:text-xs [&_th]:font-semibold [&_th]:tracking-[0.1em]">
+              <TableHead>Priority</TableHead>
+              <TableHead>What to fix</TableHead>
+              <TableHead>Why it matters</TableHead>
+              <TableHead>How to fix</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {fixes.map((fix) => (
-              <tr key={fix.title}>
-                <td>
+              <TableRow key={fix.title} className="align-top">
+                <TableCell className="font-medium capitalize">
                   <Badge variant={IMPACT_TONE[fix.impact]}>{fix.impact}</Badge>
-                </td>
-                <td>
-                  <strong>{fix.title}</strong>
-                </td>
-                <td>
+                </TableCell>
+                <TableCell className="font-semibold text-foreground">{fix.title}</TableCell>
+                <TableCell>
                   <p className="muted-text">{fix.why}</p>
-                </td>
-                <td>
+                </TableCell>
+                <TableCell>
                   <p className="muted-text">{fix.howToFix}</p>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </CardBody>
     </Card>
   );

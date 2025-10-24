@@ -1,23 +1,29 @@
 import { FormEvent, useMemo, useState } from "react";
 import jsPDF from "jspdf";
+import { AlertCircle } from "lucide-react";
 import {
   Alert,
   AlertDescription,
-  AlertIcon,
   AlertTitle,
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Flex,
+  Input,
   Spinner,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
+  Stack,
   Tabs,
-} from "@kibo-ui/react";
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@components/ui";
 import { ScoreCard } from "@components/ScoreCard";
 import { TopFixesTable } from "@components/TopFixesTable";
 import { ChecksList } from "@components/ChecksList";
 import { useSeoAnalyzer } from "@hooks/useSeoAnalyzer";
 import { ScoreCategory, SeoReport } from "./types";
-import { Badge, Button, Card, CardBody, CardHeader, Flex, Input, Stack } from "@components/ui";
 
 const CATEGORY_LABELS: Record<Exclude<ScoreCategory, "overall">, string> = {
   technical: "Technical",
@@ -27,6 +33,19 @@ const CATEGORY_LABELS: Record<Exclude<ScoreCategory, "overall">, string> = {
   navigability: "Navigability",
   social: "Social",
 };
+
+const TAB_DEFINITIONS = [
+  {
+    value: "overview",
+    label: "Overview",
+    categories: ["Technical", "Content", "Performance", "Mobile", "Navigability", "Social"],
+  },
+  { value: "technical", label: "Technical", categories: ["Technical"] },
+  { value: "content", label: "Content", categories: ["Content"] },
+  { value: "performance", label: "Performance", categories: ["Performance"] },
+  { value: "mobile", label: "Mobile", categories: ["Mobile"] },
+  { value: "social", label: "Social", categories: ["Social"] },
+] as const;
 
 function normalizeUrl(rawValue: string): string {
   const trimmed = rawValue.trim();
@@ -171,12 +190,12 @@ function App() {
         </Card>
 
         {error ? (
-          <Alert status="error">
-            <AlertIcon />
-            <Stack gap="0.5rem">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" aria-hidden="true" />
+            <div className="grid gap-1">
               <AlertTitle>Analysis failed</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
-            </Stack>
+            </div>
           </Alert>
         ) : null}
 
@@ -225,44 +244,23 @@ function App() {
                 <h2 className="section-title">Detailed insights</h2>
               </CardHeader>
               <CardBody>
-                <Tabs>
-                  <TabList>
-                    <Tab>Overview</Tab>
-                    <Tab>Technical</Tab>
-                    <Tab>Content</Tab>
-                    <Tab>Performance</Tab>
-                    <Tab>Mobile</Tab>
-                    <Tab>Social</Tab>
-                  </TabList>
-                  <TabPanels>
-                    <TabPanel>
-                      <ChecksList
-                        checks={filterChecks(report, [
-                          "Technical",
-                          "Content",
-                          "Performance",
-                          "Mobile",
-                          "Navigability",
-                          "Social",
-                        ])}
-                      />
-                    </TabPanel>
-                    <TabPanel>
-                      <ChecksList checks={filterChecks(report, ["Technical"])} />
-                    </TabPanel>
-                    <TabPanel>
-                      <ChecksList checks={filterChecks(report, ["Content"])} />
-                    </TabPanel>
-                    <TabPanel>
-                      <ChecksList checks={filterChecks(report, ["Performance"])} />
-                    </TabPanel>
-                    <TabPanel>
-                      <ChecksList checks={filterChecks(report, ["Mobile"])} />
-                    </TabPanel>
-                    <TabPanel>
-                      <ChecksList checks={filterChecks(report, ["Social"])} />
-                    </TabPanel>
-                  </TabPanels>
+                <Tabs defaultValue="overview" className="w-full">
+                  <TabsList className="flex w-full flex-wrap gap-2 rounded-xl bg-muted/40 p-1">
+                    {TAB_DEFINITIONS.map((tab) => (
+                      <TabsTrigger
+                        key={tab.value}
+                        value={tab.value}
+                        className="flex-1 rounded-md px-4 py-2 text-sm font-medium capitalize transition-all data-[state=active]:bg-background data-[state=active]:text-foreground sm:flex-none"
+                      >
+                        {tab.label}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                  {TAB_DEFINITIONS.map((tab) => (
+                    <TabsContent key={tab.value} value={tab.value} className="mt-4">
+                      <ChecksList checks={filterChecks(report, tab.categories)} />
+                    </TabsContent>
+                  ))}
                 </Tabs>
               </CardBody>
             </Card>
@@ -273,7 +271,7 @@ function App() {
   );
 }
 
-function filterChecks(report: SeoReport, categories: string[]) {
+function filterChecks(report: SeoReport, categories: readonly string[]) {
   return report.checks.filter((check) => categories.includes(check.category));
 }
 

@@ -1,4 +1,4 @@
-import { Badge, Card, CardBody, CardHeader, Flex, Stack } from "@components/ui";
+import { Badge, Card, CardBody, CardHeader, Flex, Separator, Stack } from "@components/ui";
 import { CheckDetail } from "../types";
 
 interface ChecksListProps {
@@ -37,13 +37,13 @@ export function ChecksList({ checks }: ChecksListProps) {
                 <div key={check.item}>
                   <Flex justify="space-between" align="center">
                     <span className="item-title">{check.item}</span>
-                      <Badge variant={check.passed ? "success" : "destructive"}>
+                    <Badge variant={check.passed ? "success" : "destructive"}>
                       {check.passed ? "Pass" : "Fail"}
                     </Badge>
                   </Flex>
                   {check.details ? <p className="muted-text">{check.details}</p> : null}
                   {index < grouped[category].length - 1 ? (
-                    <div className="checks-section-divider" />
+                    <Separator className="my-3 bg-border/70" />
                   ) : null}
                 </div>
               ))}

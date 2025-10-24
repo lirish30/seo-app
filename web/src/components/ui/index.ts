@@ -4,4 +4,8 @@ export * from "./card";
 export * from "./flex";
 export * from "./input";
 export * from "./stack";
-
+export * from "./alert";
+export * from "./tabs";
+export * from "./table";
+export * from "./separator";
+export * from "./spinner";

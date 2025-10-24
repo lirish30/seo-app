@@ -7,7 +7,6 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@kibo-ui/react": ["src/kibo"],
       "@components/*": ["src/components/*"],
       "@hooks/*": ["src/hooks/*"],
       "@pages/*": ["src/pages/*"],
