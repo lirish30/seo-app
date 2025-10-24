@@ -1,18 +1,30 @@
 import React, {
+  ButtonHTMLAttributes,
   createContext,
+  HTMLAttributes,
+  ReactNode,
+  useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
-  ReactNode,
-  HTMLAttributes,
-  ButtonHTMLAttributes,
 } from "react";
-import { ThemeProvider, useTheme, keyframes } from "@emotion/react";
+import { Global, ThemeProvider, keyframes, useTheme } from "@emotion/react";
 import styled from "@emotion/styled";
 
 type SpaceValue = number | string;
+type ColorMode = "light" | "dark";
+type AlertStatus = "info" | "success" | "warning" | "error";
+
+interface StatusTokens {
+  background: string;
+  border: string;
+  foreground: string;
+  icon: string;
+}
 
 interface KiboTheme {
+  mode: ColorMode;
   colors: {
     background: string;
     surface: string;
@@ -25,35 +37,158 @@ interface KiboTheme {
     error: string;
     muted: string;
   };
+  status: Record<AlertStatus, StatusTokens>;
   radius: {
     sm: string;
     md: string;
   };
   shadow: string;
+  focusRing: string;
 }
 
-const baseTheme: KiboTheme = {
+const BASE_THEME: KiboTheme = {
+  mode: "dark",
   colors: {
-    background: "#f5f7fb",
-    surface: "#ffffff",
-    border: "#e2e8f0",
-    textPrimary: "#1f2933",
-    textSecondary: "#52606d",
-    primary: "#2563eb",
-    success: "#16a34a",
-    warning: "#f59e0b",
-    error: "#dc2626",
-    muted: "#f1f5f9",
+    background: "#050507",
+    surface: "rgba(15, 17, 23, 0.96)",
+    border: "rgba(148, 163, 184, 0.16)",
+    textPrimary: "#f4f4f5",
+    textSecondary: "#a1a1aa",
+    primary: "#6366f1",
+    success: "#22c55e",
+    warning: "#facc15",
+    error: "#fb7185",
+    muted: "rgba(148, 163, 184, 0.18)",
+  },
+  status: {
+    info: {
+      background: "rgba(99, 102, 241, 0.18)",
+      border: "rgba(99, 102, 241, 0.45)",
+      foreground: "#d9ddff",
+      icon: "#a5adff",
+    },
+    success: {
+      background: "rgba(34, 197, 94, 0.18)",
+      border: "rgba(34, 197, 94, 0.45)",
+      foreground: "#dcfce7",
+      icon: "#86efac",
+    },
+    warning: {
+      background: "rgba(250, 204, 21, 0.22)",
+      border: "rgba(250, 204, 21, 0.45)",
+      foreground: "#fef3c7",
+      icon: "#fde68a",
+    },
+    error: {
+      background: "rgba(248, 113, 113, 0.2)",
+      border: "rgba(248, 113, 113, 0.5)",
+      foreground: "#fee2e2",
+      icon: "#fecaca",
+    },
   },
   radius: {
-    sm: "8px",
-    md: "12px",
+    sm: "10px",
+    md: "16px",
   },
-  shadow: "0 12px 30px rgba(15, 23, 42, 0.08)",
+  shadow: "0 32px 60px rgba(2, 6, 23, 0.45)",
+  focusRing: "rgba(99, 102, 241, 0.45)",
 };
 
+const THEMES: Record<ColorMode, KiboTheme> = {
+  light: { ...BASE_THEME },
+  dark: BASE_THEME,
+};
+
+const STORAGE_KEY = "kibo-color-mode";
+const isBrowser = typeof window !== "undefined";
+
+function getInitialColorMode(): ColorMode {
+  return "dark";
+}
+
+interface ColorModeContextValue {
+  colorMode: ColorMode;
+  setColorMode: (mode: ColorMode) => void;
+  toggleColorMode: () => void;
+}
+
+const ColorModeContext = createContext<ColorModeContextValue | null>(null);
+
 export function KiboProvider({ children }: { children: ReactNode }) {
-  return <ThemeProvider theme={baseTheme}>{children}</ThemeProvider>;
+  const [colorMode, setColorModeState] = useState<ColorMode>(() => getInitialColorMode());
+
+  const setColorMode = useCallback((mode: ColorMode) => {
+    const next: ColorMode = mode === "dark" ? "dark" : "dark";
+    setColorModeState(() => {
+      if (isBrowser) {
+        try {
+          window.localStorage.setItem(STORAGE_KEY, next);
+        } catch {
+          // ignore write failures
+        }
+      }
+      return next;
+    });
+  }, []);
+
+  const toggleColorMode = useCallback(() => {
+    setColorMode("dark");
+  }, [setColorMode]);
+
+  useEffect(() => {
+    setColorModeState("dark");
+  }, [setColorModeState]);
+
+  const theme = useMemo(() => THEMES[colorMode], [colorMode]);
+
+  useEffect(() => {
+    if (!isBrowser) {
+      return;
+    }
+    const root = document.documentElement;
+    root.dataset.kiboColorMode = colorMode;
+    root.style.setProperty("--kibo-color-background", theme.colors.background);
+    root.style.setProperty("--kibo-color-surface", theme.colors.surface);
+    root.style.setProperty("--kibo-color-border", theme.colors.border);
+    root.style.setProperty("--kibo-color-text-primary", theme.colors.textPrimary);
+    root.style.setProperty("--kibo-color-text-secondary", theme.colors.textSecondary);
+  }, [colorMode, theme]);
+
+  const contextValue = useMemo(
+    () => ({
+      colorMode,
+      setColorMode,
+      toggleColorMode,
+    }),
+    [colorMode, setColorMode, toggleColorMode],
+  );
+
+  return (
+    <ColorModeContext.Provider value={contextValue}>
+      <ThemeProvider theme={theme}>
+        <Global
+          styles={{
+            ":root": {
+              colorScheme: colorMode,
+            },
+            body: {
+              margin: 0,
+              backgroundColor: theme.colors.background,
+              color: theme.colors.textPrimary,
+              fontFamily:
+                '"Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+              transition: "background-color 0.3s ease, color 0.3s ease",
+            },
+            "#root": {
+              minHeight: "100vh",
+              backgroundColor: theme.colors.background,
+            },
+          }}
+        />
+        {children}
+      </ThemeProvider>
+    </ColorModeContext.Provider>
+  );
 }
 
 function resolveSpace(value?: SpaceValue): string | undefined {
@@ -221,15 +356,14 @@ export const Card = Object.assign(CardComponent, {
   Body: CardBody,
 });
 
-interface TextProps extends React.HTMLAttributes<HTMLElement> {
-  variant?: "h1" | "h2" | "h3" | "h4" | "subtitle1" | "body1" | "body2";
+type TextVariant = "h1" | "h2" | "h3" | "h4" | "subtitle1" | "body1" | "body2";
+
+interface TextProps extends Omit<React.HTMLAttributes<HTMLElement>, "color"> {
+  variant?: TextVariant;
   color?: string;
 }
 
-const TEXT_VARIANTS: Record<
-  NonNullable<TextProps["variant"]>,
-  { as: keyof JSX.IntrinsicElements; fontSize: string; fontWeight: number; lineHeight: string }
-> = {
+const TEXT_VARIANTS: Record<TextVariant, { as: "h1" | "h2" | "h3" | "h4" | "h6" | "p"; fontSize: string; fontWeight: number; lineHeight: string }> = {
   h1: { as: "h1", fontSize: "2.75rem", fontWeight: 700, lineHeight: "1.2" },
   h2: { as: "h2", fontSize: "2.25rem", fontWeight: 600, lineHeight: "1.25" },
   h3: { as: "h3", fontSize: "1.75rem", fontWeight: 600, lineHeight: "1.3" },
@@ -246,22 +380,16 @@ export const Text = React.forwardRef<HTMLElement, TextProps>(function Text(
   const theme = useTheme() as KiboTheme;
   const variantStyle = TEXT_VARIANTS[variant] ?? TEXT_VARIANTS.body1;
   const Component = variantStyle.as;
-  return (
-    <Component
-      ref={ref as any}
-      style={{
-        color: resolveColor(theme, color) ?? theme.colors.textPrimary,
-        fontSize: variantStyle.fontSize,
-        fontWeight: variantStyle.fontWeight,
-        lineHeight: variantStyle.lineHeight,
-        margin: 0,
-        ...style,
-      }}
-      {...rest}
-    >
-      {children}
-    </Component>
-  );
+  const componentStyle: React.CSSProperties = {
+    color: resolveColor(theme, color) ?? theme.colors.textPrimary,
+    fontSize: variantStyle.fontSize,
+    fontWeight: variantStyle.fontWeight,
+    lineHeight: variantStyle.lineHeight,
+    margin: 0,
+    ...style,
+  };
+
+  return React.createElement(Component, { ...rest, ref, style: componentStyle }, children);
 });
 
 interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
@@ -368,13 +496,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const group = useContext(ButtonGroupContext);
     const finalVariant = variant ?? group?.variant ?? "solid";
     return (
-      <StyledButton
-        ref={ref}
-        $variant={finalVariant}
-        $color={color}
-        $theme={theme}
-        {...rest}
-      >
+      <StyledButton ref={ref} $variant={finalVariant} $color={color} $theme={theme} {...rest}>
         {children}
       </StyledButton>
     );
@@ -386,10 +508,7 @@ interface ButtonGroupProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export function ButtonGroup({ variant, children, style, ...rest }: ButtonGroupProps) {
-  const value = useMemo<ButtonGroupContextValue>(
-    () => ({ variant }),
-    [variant],
-  );
+  const value = useMemo<ButtonGroupContextValue>(() => ({ variant }), [variant]);
   return (
     <ButtonGroupContext.Provider value={value}>
       <div
@@ -406,8 +525,6 @@ export function ButtonGroup({ variant, children, style, ...rest }: ButtonGroupPr
   );
 }
 
-type AlertStatus = "info" | "success" | "warning" | "error";
-
 interface AlertProps extends HTMLAttributes<HTMLDivElement> {
   status?: AlertStatus;
 }
@@ -418,23 +535,18 @@ interface AlertContextValue {
 
 const AlertContext = createContext<AlertContextValue | null>(null);
 
-const ALERT_COLORS: Record<AlertStatus, { border: string; background: string }> = {
-  info: { border: "#2563eb", background: "#dbeafe" },
-  success: { border: "#16a34a", background: "#dcfce7" },
-  warning: { border: "#f59e0b", background: "#fef3c7" },
-  error: { border: "#dc2626", background: "#fee2e2" },
-};
-
 export function Alert({ status = "info", children, style, ...rest }: AlertProps) {
-  const palette = ALERT_COLORS[status];
+  const theme = useTheme() as KiboTheme;
+  const palette = theme.status[status];
   return (
     <AlertContext.Provider value={{ status }}>
       <div
         role="alert"
         style={{
-          borderRadius: baseTheme.radius.md,
+          borderRadius: theme.radius.md,
           border: `1px solid ${palette.border}`,
           backgroundColor: palette.background,
+          color: palette.foreground,
           padding: "16px 20px",
           display: "flex",
           gap: "12px",
@@ -451,27 +563,32 @@ export function Alert({ status = "info", children, style, ...rest }: AlertProps)
 
 export function AlertIcon() {
   const context = useContext(AlertContext);
+  const theme = useTheme() as KiboTheme;
+  const status = context ? context.status : "info";
+  const palette = theme.status[status];
   const iconMap: Record<AlertStatus, string> = {
     info: "ℹ️",
     success: "✅",
     warning: "⚠️",
     error: "⛔️",
   };
-  const icon = context ? iconMap[context.status] : iconMap.info;
+  const icon = iconMap[status];
   return (
-    <span aria-hidden style={{ fontSize: "1.5rem", lineHeight: 1 }}>
+    <span aria-hidden style={{ fontSize: "1.5rem", lineHeight: 1, color: palette.icon }}>
       {icon}
     </span>
   );
 }
 
 export function AlertTitle({ children, style, ...rest }: HTMLAttributes<HTMLDivElement>) {
+  const theme = useTheme() as KiboTheme;
   return (
     <div
       style={{
         fontWeight: 700,
         fontSize: "1rem",
         marginBottom: "4px",
+        color: theme.colors.textPrimary,
         ...style,
       }}
       {...rest}
@@ -486,11 +603,15 @@ export function AlertDescription({
   style,
   ...rest
 }: HTMLAttributes<HTMLDivElement>) {
+  const context = useContext(AlertContext);
+  const theme = useTheme() as KiboTheme;
+  const status = context ? context.status : "info";
+  const palette = theme.status[status];
   return (
     <div
       style={{
         fontSize: "0.9rem",
-        color: baseTheme.colors.textSecondary,
+        color: palette.foreground,
         ...style,
       }}
       {...rest}
@@ -500,18 +621,20 @@ export function AlertDescription({
   );
 }
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  size?: "sm" | "md" | "lg";
+type InputSize = "sm" | "md" | "lg";
+
+interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
+  size?: InputSize;
 }
 
-const StyledInput = styled.input<{ $size: "sm" | "md" | "lg"; theme?: KiboTheme }>(
+const StyledInput = styled.input<{ $size: InputSize; theme?: KiboTheme }>(
   ({ $size, theme }) => {
-    const sizeMap: Record<InputProps["size"], { padding: string; fontSize: string }> = {
+    const sizeMap: Record<InputSize, { padding: string; fontSize: string }> = {
       sm: { padding: "8px 12px", fontSize: "0.9rem" },
       md: { padding: "10px 14px", fontSize: "1rem" },
       lg: { padding: "12px 16px", fontSize: "1.05rem" },
     };
-    const config = sizeMap[$size ?? "md"];
+    const config = sizeMap[$size];
     return {
       width: "100%",
       padding: config.padding,
@@ -523,9 +646,13 @@ const StyledInput = styled.input<{ $size: "sm" | "md" | "lg"; theme?: KiboTheme 
       backgroundColor: theme?.colors.surface,
       color: theme?.colors.textPrimary,
       boxSizing: "border-box",
+      "&::placeholder": {
+        color: theme?.colors.textSecondary,
+        opacity: 0.7,
+      },
       "&:focus": {
         borderColor: theme?.colors.primary,
-        boxShadow: `0 0 0 3px ${theme?.colors.primary}33`,
+        boxShadow: `0 0 0 3px ${theme?.focusRing}`,
       },
     };
   },
@@ -599,11 +726,12 @@ export function Progress({ value, color = "primary" }: ProgressProps) {
 interface DividerProps extends HTMLAttributes<HTMLHRElement> {}
 
 export function Divider({ style, ...rest }: DividerProps) {
+  const theme = useTheme() as KiboTheme;
   return (
     <hr
       style={{
         border: 0,
-        borderBottom: `1px solid ${baseTheme.colors.border}`,
+        borderBottom: `1px solid ${theme.colors.border}`,
         margin: "12px 0",
         ...style,
       }}
@@ -682,10 +810,7 @@ export function Tabs({ children, colorScheme = "primary", ...rest }: TabsProps) 
   const theme = useTheme() as KiboTheme;
   const [index, setIndex] = useState(0);
   const color = resolveColor(theme, colorScheme) ?? theme.colors.primary;
-  const value = useMemo<TabsContextValue>(
-    () => ({ index, setIndex, color }),
-    [index, color],
-  );
+  const value = useMemo<TabsContextValue>(() => ({ index, setIndex, color }), [index, color]);
   return (
     <TabsContext.Provider value={value}>
       <div {...rest}>{children}</div>
@@ -696,21 +821,20 @@ export function Tabs({ children, colorScheme = "primary", ...rest }: TabsProps) 
 interface TabListProps extends HTMLAttributes<HTMLDivElement> {}
 
 export function TabList({ children, style, ...rest }: TabListProps) {
+  const theme = useTheme() as KiboTheme;
   return (
     <div
       role="tablist"
       style={{
         display: "flex",
         gap: "12px",
-        borderBottom: `1px solid ${baseTheme.colors.border}`,
+        borderBottom: `1px solid ${theme.colors.border}`,
         ...style,
       }}
       {...rest}
     >
       {React.Children.map(children, (child, index) =>
-        React.isValidElement(child)
-          ? React.cloneElement(child, { index })
-          : child,
+        React.isValidElement(child) ? React.cloneElement(child, { index }) : child,
       )}
     </div>
   );
@@ -720,7 +844,11 @@ interface TabProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   index?: number;
 }
 
-const TabButton = styled.button<{ $active: boolean; $color: string }>(({ $active, $color }) => ({
+const TabButton = styled.button<{
+  $active: boolean;
+  $color: string;
+  theme?: KiboTheme;
+}>(({ $active, $color, theme }) => ({
   border: "none",
   background: "transparent",
   cursor: "pointer",
@@ -728,7 +856,7 @@ const TabButton = styled.button<{ $active: boolean; $color: string }>(({ $active
   fontWeight: 600,
   fontSize: "0.95rem",
   borderBottom: `3px solid ${$active ? $color : "transparent"}`,
-  color: $active ? $color : baseTheme.colors.textSecondary,
+  color: $active ? $color : theme?.colors.textSecondary,
   transition: "color 0.2s ease, border-color 0.2s ease",
   outline: "none",
 }));
@@ -763,9 +891,7 @@ export function TabPanels({ children, ...rest }: TabPanelsProps) {
   return (
     <div {...rest}>
       {React.Children.map(children, (child, index) =>
-        React.isValidElement(child)
-          ? React.cloneElement(child, { index })
-          : child,
+        React.isValidElement(child) ? React.cloneElement(child, { index }) : child,
       )}
     </div>
   );
@@ -796,4 +922,12 @@ export function TabPanel({ children, index = 0, style, ...rest }: TabPanelProps)
       {children}
     </div>
   );
+}
+
+export function useColorMode() {
+  const context = useContext(ColorModeContext);
+  if (!context) {
+    throw new Error("useColorMode must be used within KiboProvider");
+  }
+  return context;
 }

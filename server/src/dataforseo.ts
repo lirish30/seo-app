@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from "axios";
+
 import { OnPageSummary, OnPageTaskResult } from "./types";
 
 const DATAFORSEO_API_BASE = "https://api.dataforseo.com/v3";
@@ -21,6 +22,50 @@ const http: AxiosInstance | null =
         timeout: 30_000,
       })
     : null;
+
+interface DataForSeoStructuredData {
+  schema_type?: string;
+}
+
+interface DataForSeoLink {
+  url?: string;
+}
+
+interface DataForSeoLinks {
+  internal_links?: DataForSeoLink[];
+  internal_links_count?: number;
+  external_links_count?: number;
+}
+
+interface DataForSeoPageMetrics {
+  content_size?: number;
+  page_timing?: {
+    time_to_interactive?: number;
+  };
+  resource_fetches?: number;
+  html_size?: number;
+  depth?: number;
+  is_mobile_friendly?: boolean;
+  headings?: Record<string, number>;
+}
+
+interface DataForSeoPageSnapshot {
+  title?: string;
+  meta_description?: string;
+  meta_robots?: string;
+  canonical?: string;
+  meta_viewport?: string;
+  og_tags_count?: number;
+  twitter_tags_count?: number;
+}
+
+interface DataForSeoSummary {
+  status_code?: number;
+  page_metrics?: DataForSeoPageMetrics;
+  page_snapshot?: DataForSeoPageSnapshot;
+  links?: DataForSeoLinks;
+  structured_data?: DataForSeoStructuredData[];
+}
 
 function ensureClient(): AxiosInstance {
   if (!http) {
@@ -121,9 +166,13 @@ export async function getOnPageSummary(taskId: string): Promise<OnPageSummary> {
   return mapSummary(summary);
 }
 
-function mapSummary(raw: any): OnPageSummary {
-  const meta = raw?.page_metrics ?? {};
-  const pageMeta = raw?.page_snapshot ?? {};
+function mapSummary(raw?: DataForSeoSummary): OnPageSummary {
+  if (!raw) {
+    return {};
+  }
+
+  const meta = raw.page_metrics ?? {};
+  const pageMeta = raw.page_snapshot ?? {};
 
   const docMetrics = {
     size: meta?.content_size,
@@ -153,24 +202,25 @@ function mapSummary(raw: any): OnPageSummary {
     social: {
       openGraph: Boolean(pageMeta?.og_tags_count),
       twitter: Boolean(pageMeta?.twitter_tags_count),
-      socialLinks: extractSocialLinks(raw?.links),
+      socialLinks: extractSocialLinks(raw.links),
     },
-    headings: raw?.page_metrics?.headings ?? {},
-    schemaTypes: raw?.structured_data?.map((item: any) => item?.schema_type),
+    headings: raw.page_metrics?.headings ?? {},
+    schemaTypes:
+      raw.structured_data
+        ?.map((item) => item.schema_type)
+        .filter((schemaType): schemaType is string => Boolean(schemaType)) ?? [],
   };
 }
 
-function extractSocialLinks(links: any): string[] {
-  if (!links?.internal_links) {
+function extractSocialLinks(links?: DataForSeoLinks): string[] {
+  if (!links?.internal_links?.length) {
     return [];
   }
   const socials = ["facebook", "twitter", "linkedin", "instagram", "youtube"];
-  return (links.internal_links as any[])
-    .map((link) => link?.url)
-    .filter(Boolean)
-    .filter((url: string) =>
-      socials.some((network) => url.toLowerCase().includes(network)),
-    );
+  return links.internal_links
+    .map((link) => link.url)
+    .filter((url): url is string => Boolean(url))
+    .filter((url) => socials.some((network) => url.toLowerCase().includes(network)));
 }
 
 async function delay(ms: number): Promise<void> {

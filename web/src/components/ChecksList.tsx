@@ -1,11 +1,4 @@
-import {
-  Badge,
-  Card,
-  Stack,
-  Text,
-  Flex,
-  Divider,
-} from "@kibo-ui/react";
+import { Badge, Card, CardBody, CardHeader, Flex, Stack } from "@components/ui";
 import { CheckDetail } from "../types";
 
 interface ChecksListProps {
@@ -24,40 +17,38 @@ export function ChecksList({ checks }: ChecksListProps) {
   if (categories.length === 0) {
     return (
       <Card>
-        <Card.Body>
-          <Text variant="body1">No checks available for this category yet.</Text>
-        </Card.Body>
+        <CardBody>
+          <p className="muted-text">No checks available for this category yet.</p>
+        </CardBody>
       </Card>
     );
   }
 
   return (
-    <Stack gap="6">
+    <Stack gap="2rem">
       {categories.map((category) => (
         <Card key={category}>
-          <Card.Header>
-            <Text variant="h4">{category}</Text>
-          </Card.Header>
-          <Card.Body>
-            <Stack gap="4">
+          <CardHeader>
+            <h3 className="card-heading">{category}</h3>
+          </CardHeader>
+          <CardBody>
+            <Stack gap="1.5rem">
               {grouped[category].map((check, index) => (
-                <Stack key={check.item} gap="2">
+                <div key={check.item}>
                   <Flex justify="space-between" align="center">
-                    <Text variant="subtitle1">{check.item}</Text>
-                    <Badge color={check.passed ? "success" : "error"}>
+                    <span className="item-title">{check.item}</span>
+                      <Badge variant={check.passed ? "success" : "destructive"}>
                       {check.passed ? "Pass" : "Fail"}
                     </Badge>
                   </Flex>
-                  {check.details ? (
-                    <Text variant="body2" color="text.secondary">
-                      {check.details}
-                    </Text>
+                  {check.details ? <p className="muted-text">{check.details}</p> : null}
+                  {index < grouped[category].length - 1 ? (
+                    <div className="checks-section-divider" />
                   ) : null}
-                  {index < grouped[category].length - 1 ? <Divider /> : null}
-                </Stack>
+                </div>
               ))}
             </Stack>
-          </Card.Body>
+          </CardBody>
         </Card>
       ))}
     </Stack>

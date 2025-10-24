@@ -1,11 +1,4 @@
-import {
-  Badge,
-  Card,
-  Progress,
-  Stack,
-  Text,
-  Flex,
-} from "@kibo-ui/react";
+import { Badge, Card, CardBody, CardHeader, Flex, Stack } from "@components/ui";
 
 interface ScoreCardProps {
   title: string;
@@ -14,26 +7,35 @@ interface ScoreCardProps {
 }
 
 export function ScoreCard({ title, score, description }: ScoreCardProps) {
-  const color = score >= 80 ? "success" : score >= 60 ? "warning" : "error";
+  const tone = score >= 80 ? "success" : score >= 60 ? "warning" : "destructive";
 
   return (
     <Card>
-      <Card.Header>
+      <CardHeader>
         <Flex justify="space-between" align="center">
-          <Text variant="h4">{title}</Text>
-          <Badge color={color}>{Math.round(score)}</Badge>
+          <h3 className="score-card-title">{title}</h3>
+          <Badge variant={tone}>{Math.round(score)}</Badge>
         </Flex>
-      </Card.Header>
-      <Card.Body>
-        <Stack gap="4">
-          <Progress color={color} value={score} />
-          {description ? (
-            <Text variant="body2" color="text.secondary">
-              {description}
-            </Text>
-          ) : null}
+      </CardHeader>
+      <CardBody>
+        <Stack gap="1rem">
+          <div className="score-progress">
+            <div
+              className="score-progress-bar"
+              style={{
+                width: `${Math.min(Math.max(score, 0), 100)}%`,
+                background:
+                  tone === "success"
+                    ? "linear-gradient(90deg, #22c55e, #4ade80)"
+                    : tone === "warning"
+                    ? "linear-gradient(90deg, #facc15, #fbbf24)"
+                  : "linear-gradient(90deg, #fb7185, #f43f5e)"
+              }}
+            />
+          </div>
+          {description ? <p className="muted-text">{description}</p> : null}
         </Stack>
-      </Card.Body>
+      </CardBody>
     </Card>
   );
 }

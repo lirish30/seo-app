@@ -1,10 +1,13 @@
 import "dotenv/config";
-import express from "express";
-import cors from "cors";
-import helmet from "helmet";
-import path from "path";
+
 import fs from "fs";
+import path from "path";
+
+import cors from "cors";
+import express from "express";
+import helmet from "helmet";
 import { z } from "zod";
+
 import { runSeoAnalysis } from "./analyzer";
 
 const app = express();

@@ -1,5 +1,6 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
+
 import { createOnPageTask, getOnPageSummary, pollTask } from "./dataforseo";
 import { computeScores, Issue } from "./scoring";
 import { CheckDetail, SeoReport } from "./types";
@@ -603,6 +604,11 @@ function toAbsoluteUrl(href: string, origin: string): string {
   }
 }
 
-function getNestedValue(obj: any, path: string[]): any {
-  return path.reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : undefined), obj);
+function getNestedValue<TValue>(source: unknown, path: string[]): TValue | undefined {
+  return path.reduce<unknown | undefined>((current, key) => {
+    if (current && typeof current === "object" && key in current) {
+      return (current as Record<string, unknown>)[key];
+    }
+    return undefined;
+  }, source) as TValue | undefined;
 }

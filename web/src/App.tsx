@@ -5,27 +5,19 @@ import {
   AlertDescription,
   AlertIcon,
   AlertTitle,
-  Badge,
-  Box,
-  Button,
-  ButtonGroup,
-  Card,
-  Flex,
-  Input,
   Spinner,
-  Stack,
-  Tabs,
   Tab,
   TabList,
   TabPanel,
   TabPanels,
-  Text,
+  Tabs,
 } from "@kibo-ui/react";
 import { ScoreCard } from "@components/ScoreCard";
 import { TopFixesTable } from "@components/TopFixesTable";
 import { ChecksList } from "@components/ChecksList";
 import { useSeoAnalyzer } from "@hooks/useSeoAnalyzer";
 import { ScoreCategory, SeoReport } from "./types";
+import { Badge, Button, Card, CardBody, CardHeader, Flex, Input, Stack } from "@components/ui";
 
 const CATEGORY_LABELS: Record<Exclude<ScoreCategory, "overall">, string> = {
   technical: "Technical",
@@ -35,6 +27,17 @@ const CATEGORY_LABELS: Record<Exclude<ScoreCategory, "overall">, string> = {
   navigability: "Navigability",
   social: "Social",
 };
+
+function normalizeUrl(rawValue: string): string {
+  const trimmed = rawValue.trim();
+  if (!trimmed) {
+    return "";
+  }
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
+}
 
 function App() {
   const { report, loading, error, analyze, setError } = useSeoAnalyzer();
@@ -49,9 +52,15 @@ function App() {
       return;
     }
     try {
-      await analyze(url.trim());
+      const normalizedUrl = normalizeUrl(url);
+      if (!normalizedUrl) {
+        setError("Please provide a URL to analyze.");
+        return;
+      }
+      setUrl(normalizedUrl);
+      await analyze(normalizedUrl);
     } catch {
-      // errors handled by hook
+      // hook already exposes the error
     }
   };
 
@@ -80,7 +89,10 @@ function App() {
     doc.text("Scores:", 14, 48);
     const categories: Array<[string, number]> = Object.entries(report.scores)
       .filter(([key]) => key !== "overall")
-      .map(([key, value]) => [CATEGORY_LABELS[key as keyof typeof CATEGORY_LABELS], value as number]);
+      .map(([key, value]) => [
+        CATEGORY_LABELS[key as keyof typeof CATEGORY_LABELS],
+        value as number,
+      ]);
 
     categories.forEach(([label, value], index) => {
       doc.text(`${label}: ${Math.round(value)} / 100`, 20, 58 + index * 6);
@@ -119,44 +131,49 @@ function App() {
   }, [report]);
 
   return (
-    <Box padding="48px 24px" minHeight="100vh">
-      <Stack gap="8" maxW="1200px" margin="0 auto">
+    <div className="app-shell">
+      <div className="app-container">
         <Card>
-          <Card.Header>
-            <Text variant="h2">SEO Analyzer</Text>
-            <Text variant="body1" color="text.secondary">
-              Enter a page URL to get actionable SEO insights powered by DataForSEO.
-            </Text>
-          </Card.Header>
-          <Card.Body>
-            <form onSubmit={handleSubmit}>
-              <Stack gap="4">
-                <Input
-                  placeholder="https://example.com"
-                  value={url}
-                  onChange={(event) => setUrl(event.target.value)}
-                  size="lg"
-                />
-                <Flex justify="space-between" align="center" wrap="wrap" gap="4">
-                  <Button type="submit" color="primary" disabled={loading}>
-                    Analyze
-                  </Button>
-                  {hasReport ? (
-                    <ButtonGroup variant="outline">
-                      <Button onClick={handleDownloadJson}>Download JSON</Button>
-                      <Button onClick={handleExportPdf}>Export PDF</Button>
-                    </ButtonGroup>
-                  ) : null}
-                </Flex>
-              </Stack>
+          <CardHeader>
+            <Stack gap="0.5rem">
+              <p className="eyebrow">DataForSEO powered</p>
+              <h1 className="headline">SEO Analyzer</h1>
+              <p className="subheadline">
+                Enter a page URL to surface black-box SEO insights with sleek reporting outputs.
+              </p>
+            </Stack>
+          </CardHeader>
+          <CardBody>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              <Input
+                placeholder="https://example.com"
+                value={url}
+                onChange={(event) => setUrl(event.target.value)}
+                onBlur={() => setUrl((current) => normalizeUrl(current))}
+              />
+              <Flex justify="space-between" align="center" wrap gap="1rem">
+                <Button type="submit" disabled={loading}>
+                  Analyze
+                </Button>
+                {hasReport ? (
+                  <div className="button-group">
+                    <Button type="button" variant="ghost" onClick={handleDownloadJson}>
+                      Download JSON
+                    </Button>
+                    <Button type="button" variant="ghost" onClick={handleExportPdf}>
+                      Export PDF
+                    </Button>
+                  </div>
+                ) : null}
+              </Flex>
             </form>
-          </Card.Body>
+          </CardBody>
         </Card>
 
         {error ? (
           <Alert status="error">
             <AlertIcon />
-            <Stack>
+            <Stack gap="0.5rem">
               <AlertTitle>Analysis failed</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
             </Stack>
@@ -165,60 +182,50 @@ function App() {
 
         {loading ? (
           <Card>
-            <Card.Body>
-              <Flex direction="column" align="center" gap="4">
+            <CardBody>
+              <Stack gap="1rem" className="items-center text-center">
                 <Spinner size="lg" />
-                <Text variant="body1" color="text.secondary">
-                  Fetching DataForSEO insights…
-                </Text>
-              </Flex>
-            </Card.Body>
+                <p className="muted-text">Fetching DataForSEO insights…</p>
+              </Stack>
+            </CardBody>
           </Card>
         ) : null}
 
         {report ? (
-          <Stack gap="8">
+          <Stack gap="2.5rem">
             <Card>
-              <Card.Header>
-                <Flex justify="space-between" align="center" wrap="wrap" gap="4">
-                  <Stack gap="1">
-                    <Text variant="h3">Overall Score</Text>
-                    <Text variant="body2" color="text.secondary">
-                      {new URL(report.url).hostname} &bull;{" "}
-                      {new Date(report.analyzedAt).toLocaleString()}
-                    </Text>
-                  </Stack>
-                  <Badge color={report.scores.overall >= 80 ? "success" : report.scores.overall >= 60 ? "warning" : "error"}>
-                    {report.scores.overall}
-                  </Badge>
-                </Flex>
-              </Card.Header>
-              <Card.Body>
-                <Flex wrap="wrap" gap="4">
+              <CardHeader>
+                <Stack gap="0.5rem">
+                  <p className="eyebrow">{new URL(report.url).hostname}</p>
+                  <h2 className="section-title">Overall signal</h2>
+                  <p className="muted-text">{new Date(report.analyzedAt).toLocaleString()}</p>
+                </Stack>
+                <Badge variant={badgeTone(report.scores.overall)} className="overall-score">
+                  {report.scores.overall}
+                </Badge>
+              </CardHeader>
+              <CardBody>
+                <div className="score-grid">
                   {scoreEntries.map((entry) => (
-                    <Box
+                    <ScoreCard
                       key={entry.key}
-                      style={{ flex: "1 1 280px" }}
-                    >
-                      <ScoreCard
-                        title={entry.label}
-                        score={entry.value}
-                        description={`${entry.label} health score`}
-                      />
-                    </Box>
+                      title={entry.label}
+                      score={entry.value}
+                      description={`${entry.label} health score`}
+                    />
                   ))}
-                </Flex>
-              </Card.Body>
+                </div>
+              </CardBody>
             </Card>
 
             <TopFixesTable fixes={report.topFixes} />
 
             <Card>
-              <Card.Header>
-                <Text variant="h3">Detailed Insights</Text>
-              </Card.Header>
-              <Card.Body>
-                <Tabs colorScheme="primary">
+              <CardHeader>
+                <h2 className="section-title">Detailed insights</h2>
+              </CardHeader>
+              <CardBody>
+                <Tabs>
                   <TabList>
                     <Tab>Overview</Tab>
                     <Tab>Technical</Tab>
@@ -229,7 +236,16 @@ function App() {
                   </TabList>
                   <TabPanels>
                     <TabPanel>
-                      <ChecksList checks={filterChecks(report, ["Technical", "Content", "Performance", "Mobile", "Navigability", "Social"])} />
+                      <ChecksList
+                        checks={filterChecks(report, [
+                          "Technical",
+                          "Content",
+                          "Performance",
+                          "Mobile",
+                          "Navigability",
+                          "Social",
+                        ])}
+                      />
                     </TabPanel>
                     <TabPanel>
                       <ChecksList checks={filterChecks(report, ["Technical"])} />
@@ -248,17 +264,23 @@ function App() {
                     </TabPanel>
                   </TabPanels>
                 </Tabs>
-              </Card.Body>
+              </CardBody>
             </Card>
           </Stack>
         ) : null}
-      </Stack>
-    </Box>
+      </div>
+    </div>
   );
 }
 
 function filterChecks(report: SeoReport, categories: string[]) {
   return report.checks.filter((check) => categories.includes(check.category));
+}
+
+function badgeTone(score: number) {
+  if (score >= 80) return "success";
+  if (score >= 60) return "warning";
+  return "destructive";
 }
 
 export default App;

@@ -1,8 +1,244 @@
-html,
-body,
-#root {
-  height: 100%;
-  margin: 0;
-  font-family: "Inter", sans-serif;
-  background-color: var(--kibo-color-background-default, #f6f6f8);
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --background: 222 62% 4%;
+    --foreground: 214 30% 92%;
+    --muted: 222 46% 10%;
+    --muted-foreground: 220 18% 68%;
+    --foreground-muted: 220 18% 68%;
+    --card: 222 54% 6%;
+    --card-foreground: 214 30% 92%;
+    --popover: 222 60% 5%;
+    --popover-foreground: 214 30% 92%;
+    --border: 222 36% 18%;
+    --input: 222 36% 18%;
+    --primary: 248 75% 62%;
+    --primary-foreground: 214 30% 98%;
+    --secondary: 222 42% 16%;
+    --secondary-foreground: 214 28% 88%;
+    --accent: 260 60% 64%;
+    --accent-foreground: 214 30% 96%;
+    --destructive: 355 78% 60%;
+    --destructive-foreground: 214 30% 96%;
+    --success: 146 70% 44%;
+    --success-foreground: 146 86% 92%;
+    --warning: 42 95% 55%;
+    --warning-foreground: 42 100% 90%;
+    --ring: 248 75% 62%;
+    --radius: 0.875rem;
+    --font-sans: "Inter", "SF Pro Display", "Segoe UI", sans-serif;
+  }
+
+  .dark {
+    color-scheme: dark;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    font-feature-settings: "rlig" 1, "calt" 1;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  p {
+    margin: 0;
+  }
+
+  ::selection {
+    background: rgba(129, 140, 248, 0.35);
+    color: hsl(var(--primary-foreground));
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+@layer components {
+  .app-shell {
+    min-height: 100vh;
+    padding: 3.5rem 1.5rem 4.5rem;
+    background: radial-gradient(circle at top, rgba(129, 140, 248, 0.18), transparent 55%)
+      hsl(var(--background));
+  }
+
+  .app-container {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .button-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem;
+    border-radius: calc(var(--radius) - 2px);
+    border: 1px solid hsla(var(--border) / 0.75);
+    background: hsla(var(--muted) / 0.6);
+    backdrop-filter: blur(16px);
+  }
+
+  .button-group > * {
+    flex: 1 0 auto;
+  }
+
+  .muted-text {
+    color: hsl(var(--muted-foreground));
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .section-title {
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .card-heading {
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .headline {
+    font-size: clamp(2.1rem, 3vw, 2.6rem);
+    font-weight: 700;
+    letter-spacing: -0.035em;
+  }
+
+  .subheadline {
+    color: hsl(var(--muted-foreground));
+    font-size: 1.05rem;
+    line-height: 1.7;
+    max-width: 38rem;
+  }
+
+  .eyebrow {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: hsla(var(--foreground-muted) / 0.85);
+    font-weight: 600;
+  }
+
+  .overall-score {
+    font-size: clamp(2rem, 3vw, 2.4rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    padding: 0.5rem 1.6rem;
+    border-radius: 999px;
+    background: linear-gradient(
+      135deg,
+      hsla(var(--primary) / 0.18),
+      hsla(var(--primary) / 0.32)
+    );
+    color: hsl(var(--primary-foreground));
+    box-shadow: 0 28px 48px rgba(3, 7, 18, 0.45);
+  }
+
+  .score-card-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .item-title {
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  .table-card table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .table-card thead th {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: hsl(var(--muted-foreground));
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0 0 0.5rem;
+  }
+
+  .table-card tbody td {
+    padding: 1rem 0;
+    border-bottom: 1px solid hsla(var(--border) / 0.6);
+    vertical-align: top;
+  }
+
+  .table-card tbody tr:last-of-type td {
+    border-bottom: none;
+  }
+
+  .table-card tbody td strong {
+    font-weight: 600;
+    color: hsl(var(--foreground));
+  }
+
+  .table-card tbody td p {
+    margin-top: 0.35rem;
+  }
+
+  .score-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+
+  .score-progress {
+    width: 100%;
+    height: 6px;
+    border-radius: 999px;
+    background: hsla(var(--border) / 0.55);
+    overflow: hidden;
+  }
+
+  .score-progress-bar {
+    height: 100%;
+    border-radius: inherit;
+    transition: width 220ms ease;
+    background: linear-gradient(
+      90deg,
+      hsla(var(--accent) / 0.9),
+      hsla(var(--primary) / 0.9)
+    );
+  }
+
+  .checks-section-divider {
+    height: 1px;
+    background: hsla(var(--border) / 0.65);
+    margin-top: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-shell {
+    padding: 2.5rem 1.25rem 3.5rem;
+  }
+
+  .app-container {
+    gap: 2rem;
+  }
 }
