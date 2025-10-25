@@ -1,9 +1,9 @@
 {
   "pages": {
-    "/dashboard/page": [
+    "/dashboard/projects/[projectId]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/page.js"
+      "static/chunks/app/dashboard/projects/[projectId]/page.js"
     ],
     "/dashboard/layout": [
       "static/chunks/webpack.js",
@@ -26,15 +26,25 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/dashboard/projects/[projectId]/page": [
+    "/dashboard/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/projects/[projectId]/page.js"
+      "static/chunks/app/dashboard/page.js"
     ],
-    "/dashboard/projects/new/page": [
+    "/dashboard/site-health/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/projects/new/page.js"
+      "static/chunks/app/dashboard/site-health/page.js"
+    ],
+    "/dashboard/keywords/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/keywords/page.js"
+    ],
+    "/dashboard/competitors/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/competitors/page.js"
     ]
   }
 }

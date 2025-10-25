@@ -128,23 +128,32 @@ export async function createProject(payload: CreateProjectPayload): Promise<Proj
     keywordRecords = buildMockKeywordRecords(keywords);
     competitorRecords = buildMockCompetitorRecords(competitors);
   } else {
-    const [keywordMetrics, difficultyMetrics, serpInsights] = await Promise.all([
-      fetchKeywordMetrics(keywords, { languageCode, locationCode }),
-      fetchKeywordDifficulty(keywords, { languageCode, locationCode }),
-      fetchSerpResults(keywords, normalizedUrl, { languageCode, locationCode })
-    ]);
+    try {
+      const [keywordMetrics, difficultyMetrics, serpInsights] = await Promise.all([
+        fetchKeywordMetrics(keywords, { languageCode, locationCode }),
+        fetchKeywordDifficulty(keywords, { languageCode, locationCode }),
+        fetchSerpResults(keywords, normalizedUrl, { languageCode, locationCode })
+      ]);
 
-    keywordRecords = mergeKeywordInsights(
-      keywordMetrics,
-      difficultyMetrics,
-      serpInsights.keywordPositions,
-      serpInsights.keywordSerpDetails
-    );
+      keywordRecords = mergeKeywordInsights(
+        keywordMetrics,
+        difficultyMetrics,
+        serpInsights.keywordPositions,
+        serpInsights.keywordSerpDetails
+      );
 
-    competitorRecords = buildCompetitorRecords(
-      serpInsights.keywordCompetitors,
-      competitors
-    );
+      competitorRecords = buildCompetitorRecords(
+        serpInsights.keywordCompetitors,
+        competitors
+      );
+    } catch (error) {
+      console.warn(
+        "[projects-service] Failed to retrieve DataForSEO metrics while creating a project. Falling back to mock data.",
+        error
+      );
+      keywordRecords = buildMockKeywordRecords(keywords);
+      competitorRecords = buildMockCompetitorRecords(competitors);
+    }
   }
 
   const now = new Date().toISOString();
@@ -192,22 +201,31 @@ export async function refreshProject(projectId: string): Promise<ProjectRecord> 
     keywordRecords = project.keywords;
     competitorRecords = project.competitors;
   } else {
-    const [keywordMetrics, difficultyMetrics, serpInsights] = await Promise.all([
-      fetchKeywordMetrics(keywords, { languageCode: "en", locationCode: 2840 }),
-      fetchKeywordDifficulty(keywords, { languageCode: "en", locationCode: 2840 }),
-      fetchSerpResults(keywords, project.siteUrl, { languageCode: "en", locationCode: 2840 })
-    ]);
+    try {
+      const [keywordMetrics, difficultyMetrics, serpInsights] = await Promise.all([
+        fetchKeywordMetrics(keywords, { languageCode: "en", locationCode: 2840 }),
+        fetchKeywordDifficulty(keywords, { languageCode: "en", locationCode: 2840 }),
+        fetchSerpResults(keywords, project.siteUrl, { languageCode: "en", locationCode: 2840 })
+      ]);
 
-    keywordRecords = mergeKeywordInsights(
-      keywordMetrics,
-      difficultyMetrics,
-      serpInsights.keywordPositions,
-      serpInsights.keywordSerpDetails
-    );
-    competitorRecords = mergeCompetitors(
-      project.competitors,
-      buildCompetitorRecords(serpInsights.keywordCompetitors, [])
-    );
+      keywordRecords = mergeKeywordInsights(
+        keywordMetrics,
+        difficultyMetrics,
+        serpInsights.keywordPositions,
+        serpInsights.keywordSerpDetails
+      );
+      competitorRecords = mergeCompetitors(
+        project.competitors,
+        buildCompetitorRecords(serpInsights.keywordCompetitors, [])
+      );
+    } catch (error) {
+      console.warn(
+        `[projects-service] Failed to refresh DataForSEO metrics for project ${project.projectId}. Reusing stored keyword + competitor data.`,
+        error
+      );
+      keywordRecords = project.keywords;
+      competitorRecords = project.competitors;
+    }
   }
 
   const updatedRecord: ProjectRecord = {

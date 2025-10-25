@@ -72,7 +72,8 @@ export default async function BacklinksPage() {
         <CardHeader>
           <CardTitle>Toxic Link Watchlist</CardTitle>
           <CardDescription>
-            Links flagged by the analyzer due to rel="nofollow", mixed content, or suspicious anchors.
+            Links flagged by the analyzer due to rel=&quot;nofollow&quot;, mixed content, or suspicious
+            anchors.
           </CardDescription>
         </CardHeader>
         <CardContent>
