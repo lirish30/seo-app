@@ -1,8 +1,5 @@
 {
-  "/api/projects/[projectId]/route": "app/api/projects/[projectId]/route.js",
-  "/dashboard/projects/[projectId]/page": "app/dashboard/projects/[projectId]/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
+  "/page": "app/page.js",
   "/dashboard/site-health/page": "app/dashboard/site-health/page.js",
-  "/dashboard/keywords/page": "app/dashboard/keywords/page.js",
-  "/dashboard/competitors/page": "app/dashboard/competitors/page.js"
+  "/dashboard/page": "app/dashboard/page.js"
 }

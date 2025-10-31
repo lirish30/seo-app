@@ -5,20 +5,11 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Activity,
-  BookOpen,
-  GaugeCircle,
-  Link2,
-  PlusCircle,
-  Search,
-  Users,
-  Wrench
-} from "lucide-react";
+import { Activity, BookOpen, GaugeCircle, Link2, Search, Users, Wrench } from "lucide-react";
 
 const navItems = [
   {
-    title: "Projects",
+    title: "Overview",
     href: "/dashboard",
     icon: GaugeCircle
   },
@@ -51,11 +42,6 @@ const navItems = [
     title: "Technical Explorer",
     href: "/dashboard/technical-explorer",
     icon: Wrench
-  },
-  {
-    title: "Create Project",
-    href: "/dashboard/projects/new",
-    icon: PlusCircle
   }
 ];
 
